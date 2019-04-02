@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 					exit(1);
 				}
 
-				us = userLog(newsockfd,buffer);
+				us = userLog(newsockfd, buffer);
 				printf("\nEstoy aca %d \n",us);
 
 				if(error == 3){
@@ -143,8 +143,7 @@ int userLog(int newsockfd,char buffer[]){
 	char a_user[20];
 	char a_pass[20];
 	
-	memset(buffer,0,sizeof(buffer));
-
+	memset(buffer,0,TAM);
 	while(error < 3) //Cantidad de intentos erroneos 3
 	{
 		au = write(newsockfd,"User: ",6);
@@ -156,7 +155,7 @@ int userLog(int newsockfd,char buffer[]){
 			exit(1);			
 		}
 		strcpy(a_user,buffer);
-		memset(buffer,0,sizeof(buffer));
+		memset(buffer,0,TAM);
 
 		au = write(newsockfd,"Password: ",10);
 		au = read(newsockfd,buffer, TAM-1); //Ingreso de la contraseña
@@ -170,11 +169,11 @@ int userLog(int newsockfd,char buffer[]){
 
 		for(int i=0;i<CANT;i++)
 		{
-			if(strcmp(a_user,users[i].uname,sizeof(a_user)))
+			if(strcmp(a_user,users[i].uname))
 			{
-				if(strcmp(a_pass,users[i].pass,sizeof(a_pass)))
+				if(strcmp(a_pass,users[i].pass))
 				{
-					f_user = 1; //Usuario correcto
+					//Usuario correcto
 					printf("Conexion Exitosa");
 					fflush(stdout);
 					au = write(newsockfd,"Conexion Exitosa \n",sizeof("Conexion Exitosa \n"));
