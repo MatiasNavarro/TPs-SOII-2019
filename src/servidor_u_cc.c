@@ -17,8 +17,7 @@ struct user
 	char pass[20];
 } users[CANT];
 
-int userLog(char[]);
-void userLog2();
+int userLog(int); //Autenticacion de ingreso
 
 int main(int argc, char *argv[])
 {
@@ -27,11 +26,11 @@ int main(int argc, char *argv[])
 	struct sockaddr_un cli_addr, serv_addr;
 	char buffer[TAM];
 
-	strcpy(users[0].uname, "Nicolas"), 	strcpy(users[0].pass, "26");
-	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "25");
-	strcpy(users[2].uname, "Matias"), 	strcpy(users[2].pass, "24");
-	strcpy(users[3].uname, "Ciro"), 	strcpy(users[3].pass, "5");
-	strcpy(users[4].uname, "Bianca"), 	strcpy(users[4].pass, "4");
+	strcpy(users[0].uname, "Nicolas"), 	strcpy(users[0].pass, "nn26");
+	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "fn25");
+	strcpy(users[2].uname, "Matias"), 	strcpy(users[2].pass, "mn24");
+	strcpy(users[3].uname, "Ciro"), 	strcpy(users[3].pass, "cn5");
+	strcpy(users[4].uname, "Bianca"), 	strcpy(users[4].pass, "bn4");
 
 	// // users[0].name = "Federico", users[0].pass = "25";
 	// users[0].name = "Matias", 	users[0].pass = "24";
@@ -103,12 +102,7 @@ int main(int argc, char *argv[])
 					exit(1);
 				}
 
-				char a_user[20];
-				char password[20];
-
-				sscanf(buffer,"%s%s",a_user,password);
-
-				us = userLog(buffer);
+				us = userLog(newsockfd,buffer);
 				printf("\nEstoy aca %d \n",us);
 
 				if(error == 3){
@@ -144,16 +138,33 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int userLog(char buffer[]){
-	int l = -1;
-	for(int i=0;i<CANT;i++)
+int userLog(int newsockfd, buffer){
+	int f_user, f_pass ,au, error = 0; 
+	char a_user[20];
+	char password[20];
+
+	while(cant < 3) //Cantidad de intentos erroneos 3
 	{
-		if(strncmp(buffer,users[i].uname,TAM-1)==0)
+		memset(buffer,0,sizeof(buffer));
+		au = read(newsockfd,buffer,TAM-1)
+		if(au < 0)
 		{
-			l = 0;
-			break;
+			perror("lectura de socket");
+			exit(1);			
 		}
+
+		strcpy(a_user,buffer);
+		memset(buffer,0,sizeof(buffer));
+		au = read(newsockfd,buffer, TAM-1)
+		if(au < 0)
+		{
+			perror("lectura de socket");
+			exit(1);			
+		}
+
+		
+
 	}
-	return l;
+
 }
 
