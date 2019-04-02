@@ -17,7 +17,7 @@ struct user
 	char pass[20];
 } users[CANT];
 
-int userLog(int); //Autenticacion de ingreso
+int userLog(int,char[]); //Autenticacion de ingreso
 
 int main(int argc, char *argv[])
 {
@@ -138,33 +138,62 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int userLog(int newsockfd, buffer){
-	int f_user, f_pass ,au, error = 0; 
+int userLog(int newsockfd,char buffer[]){
+	int au, error = 0; 
 	char a_user[20];
-	char password[20];
+	char a_pass[20];
+	
+	memset(buffer,0,sizeof(buffer));
 
-	while(cant < 3) //Cantidad de intentos erroneos 3
+	while(error < 3) //Cantidad de intentos erroneos 3
 	{
-		memset(buffer,0,sizeof(buffer));
-		au = read(newsockfd,buffer,TAM-1)
+		au = write(newsockfd,"User: ",6);
+		au = read(newsockfd,buffer,TAM-1); //Ingreso del usuario 
+		au = write(newsockfd,"Obtuve su mensaje", 18);
 		if(au < 0)
 		{
 			perror("lectura de socket");
 			exit(1);			
 		}
-
 		strcpy(a_user,buffer);
 		memset(buffer,0,sizeof(buffer));
-		au = read(newsockfd,buffer, TAM-1)
+
+		au = write(newsockfd,"Password: ",10);
+		au = read(newsockfd,buffer, TAM-1); //Ingreso de la contraseña
+		au = write(newsockfd,"Obtuve su mensaje", 18);
 		if(au < 0)
 		{
 			perror("lectura de socket");
 			exit(1);			
 		}
+		strcpy(a_pass,buffer);
 
-		
+		for(int i=0;i<CANT;i++)
+		{
+			if(strcmp(a_user,users[i].uname,sizeof(a_user)))
+			{
+				if(strcmp(a_pass,users[i].pass,sizeof(a_pass)))
+				{
+					f_user = 1; //Usuario correcto
+					printf("Conexion Exitosa");
+					fflush(stdout);
+					au = write(newsockfd,"Conexion Exitosa \n",sizeof("Conexion Exitosa \n"));
+					return 0; 
+				}
+			}
+		}
+
+		printf("Usuario incorrecto \n");
+		fflush(stdout);
+		error++;
+
+		if(error == 3)
+		{
+			au = write(newsockfd,"Error en la autenticacion",sizeof("Error en la autenticacion"));
+			exit(0);
+		}				
 
 	}
-
+	return -1;
 }
 
