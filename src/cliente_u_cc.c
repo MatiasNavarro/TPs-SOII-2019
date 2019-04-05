@@ -39,6 +39,7 @@ int main( int argc, char *argv[] ) {
 	}
 
 	while(1) {
+
 		memset( buffer, '\0', TAM );
 		printf( "Ingrese el mensaje a enviar: " );
 		fgets( buffer, TAM-1, stdin );

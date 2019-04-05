@@ -91,18 +91,17 @@ int main(int argc, char *argv[])
 		{ // proceso hijo
 			close(sockfd);
 
+			//Comprobacion de usuario
 			us = userLog(newsockfd, buffer);
-
 			if (us == 0)
 			{
-				
+				printf("Error uacho");
 			}
 			else
 			{
 				printf("Error en la autenticacion");
 				fflush(stdout);
-				exit(0);
-				
+				exit(0);	
 			}
 
 			while (1)
@@ -151,10 +150,11 @@ int userLog(int newsockfd, char buffer[])
 	char a_user[20];
 	char a_pass[20];
 
+	printf("Comprobacion de usuario \n");
+	fflush(stdout);
 	memset(buffer, 0, TAM);
 	while (error < 3) //Cantidad de intentos erroneos 3
 	{
-		au = write(newsockfd, "User: ", 6);
 		au = read(newsockfd, buffer, TAM - 1); //Ingreso del usuario
 		au = write(newsockfd, "Obtuve su mensaje", 18);
 		if (au < 0)
@@ -165,7 +165,7 @@ int userLog(int newsockfd, char buffer[])
 		strcpy(a_user, buffer);
 		memset(buffer, 0, TAM);
 
-		au = write(newsockfd, "Password: ", 10);
+		//au = write(newsockfd, "Password: ", 10);
 		au = read(newsockfd, buffer, TAM - 1); //Ingreso de la contraseña
 		au = write(newsockfd, "Obtuve su mensaje", 18);
 		if (au < 0)
@@ -182,9 +182,9 @@ int userLog(int newsockfd, char buffer[])
 				if (strcmp(a_pass, users[i].pass))
 				{
 					//Usuario correcto
-					printf("Conexion Exitosa");
+					printf("Conexion Exitosa \n");
 					fflush(stdout);
-					au = write(newsockfd, "Conexion Exitosa \n", sizeof("Conexion Exitosa \n"));
+					//au = write(newsockfd, "Conexion Exitosa \n", sizeof("Conexion Exitosa \n"));
 					return 0;
 				}
 			}
@@ -196,10 +196,12 @@ int userLog(int newsockfd, char buffer[])
 
 		if (error == 3)
 		{
-			au = write(newsockfd, "Error en la autenticacion", sizeof("Error en la autenticacion"));
+			//au = write(newsockfd, "Error en la autenticacion", sizeof("Error en la autenticacion"));
 			fflush(stdout);
 			return -1;
 		}
 	}
+	printf("Error de intentos");
+	fflush(stdout);
 	return -1;
 }
