@@ -17,11 +17,11 @@ struct user
 	char pass[20];
 } users[CANT];
 
-int userLog(int, char[]); //Autenticacion de ingreso
+int userLog(); //Autenticacion de ingreso
 
 int main(int argc, char *argv[])
 {
-	int sockfd, newsockfd, servlen, n, pid;
+	int sockfd, newsockfd, servlen, n, pid, conect = 0;
 	unsigned int clilen;
 	struct sockaddr_un cli_addr, serv_addr;
 	char buffer[TAM];
@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
 
 	while (1)
 	{
-		int us;
 		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 		if (newsockfd < 0)
 		{
@@ -91,21 +90,11 @@ int main(int argc, char *argv[])
 		{ // proceso hijo
 			close(sockfd);
 
-			//Comprobacion de usuario
-			us = userLog(newsockfd, buffer);
-			if (us == 0)
-			{
-				printf("Error uacho");
-			}
-			else
-			{
-				printf("Error en la autenticacion");
-				fflush(stdout);
-				exit(0);	
-			}
-
 			while (1)
 			{
+				if(conect == 0){
+					conect = userLog();
+				}
 				memset(buffer, 0, TAM);
 				n = read(newsockfd, buffer, TAM - 1);
 				if (n < 0)
@@ -114,7 +103,6 @@ int main(int argc, char *argv[])
 					exit(1);
 				}
 
-				printf("\nEstoy aca %d \n", us);
 
 				printf("PROCESO: %d. ", getpid());
 				printf("Recibí: %s", buffer);
@@ -144,64 +132,33 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int userLog(int newsockfd, char buffer[])
-{
-	int au, error = 0;
-	char a_user[20];
-	char a_pass[20];
 
-	printf("Comprobacion de usuario \n");
-	fflush(stdout);
-	memset(buffer, 0, TAM);
-	while (error < 3) //Cantidad de intentos erroneos 3
-	{
-		au = read(newsockfd, buffer, TAM - 1); //Ingreso del usuario
-		au = write(newsockfd, "Obtuve su mensaje", 18);
-		if (au < 0)
-		{
-			perror("lectura de socket");
-			exit(1);
-		}
-		strcpy(a_user, buffer);
-		memset(buffer, 0, TAM);
+int userLog(){
+	char usuario [20], password [20];
+	int flag = 1;
+	printf("Autenticacion de usuario: \n");
+	while(flag){
+		printf("Usuario: ");
+		fgets(usuario,20,stdin);
+		fflush(stdout);
+		strtok(usuario, "\n");
 
-		//au = write(newsockfd, "Password: ", 10);
-		au = read(newsockfd, buffer, TAM - 1); //Ingreso de la contraseña
-		au = write(newsockfd, "Obtuve su mensaje", 18);
-		if (au < 0)
-		{
-			perror("lectura de socket");
-			exit(1);
-		}
-		strcpy(a_pass, buffer);
+		printf("Password: ");
+		fgets(password,20,stdin);
+		fflush(stdout);
+		strtok(password, "\n");
 
-		for (int i = 0; i < CANT; i++)
-		{
-			if (strcmp(a_user, users[i].uname))
-			{
-				if (strcmp(a_pass, users[i].pass))
-				{
-					//Usuario correcto
-					printf("Conexion Exitosa \n");
-					fflush(stdout);
-					//au = write(newsockfd, "Conexion Exitosa \n", sizeof("Conexion Exitosa \n"));
-					return 0;
+		for(int i=0; i<CANT; i++){
+			if(strcmp(users[i].uname, usuario)==0){
+				printf("User Correct \n");
+				if(strcmp(users[i].pass,password)==0){
+					printf("Autenticacion CORRECTA\n");
+					flag = 0;
+					break;
 				}
 			}
 		}
-
-		printf("Usuario incorrecto \n");
-		fflush(stdout);
-		error++;
-
-		if (error == 3)
-		{
-			//au = write(newsockfd, "Error en la autenticacion", sizeof("Error en la autenticacion"));
-			fflush(stdout);
-			return -1;
-		}
 	}
-	printf("Error de intentos");
-	fflush(stdout);
-	return -1;
+	return 1;
 }
+
