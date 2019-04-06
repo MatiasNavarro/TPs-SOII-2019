@@ -17,14 +17,17 @@ struct user
 	char pass[20];
 } users[CANT];
 
-int userLog(); //Autenticacion de ingreso
+int userLog(char[]); //Autenticacion de ingreso
+void getpromp(char[]);
 
 int main(int argc, char *argv[])
 {
-	int sockfd, newsockfd, servlen, n, pid, conect = 0;
+	int sockfd, newsockfd, servlen, n, pid;
+	int static conect = 0;
 	unsigned int clilen;
 	struct sockaddr_un cli_addr, serv_addr;
 	char buffer[TAM];
+	char promp [TAM];
 
 	strcpy(users[0].uname, "Nicolas"), strcpy(users[0].pass, "nn26");
 	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "fn25");
@@ -93,8 +96,10 @@ int main(int argc, char *argv[])
 			while (1)
 			{
 				if(conect == 0){
-					conect = userLog();
+					conect = userLog(promp);
+					getpromp(promp);
 				}
+
 				memset(buffer, 0, TAM);
 				n = read(newsockfd, buffer, TAM - 1);
 				if (n < 0)
@@ -132,8 +137,16 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
+/**
+ * @brief Funcion que comprueba la autenticacion de usuarios en el servidor. 
+ * Reingresa el usuario, hasta que la contraseña y el usuario sean correctas.
+ * @author Navarro, Matias Alejandro
+ * @param promp: arreglo donde se guarda el user[i].uname@ para la construccion del promp si el usuario ingresado es correcto
+ * @date 05/04/2019
+ * @return 1
+ */
 
-int userLog(){
+int userLog(char promp[]){
 	char usuario [20], password [20];
 	int flag = 1;
 	printf("Autenticacion de usuario: \n");
@@ -153,6 +166,7 @@ int userLog(){
 				printf("User Correct \n");
 				if(strcmp(users[i].pass,password)==0){
 					printf("Autenticacion CORRECTA\n");
+					strcpy(promp,users[i].uname);
 					flag = 0;
 					break;
 				}
@@ -162,3 +176,13 @@ int userLog(){
 	return 1;
 }
 
+
+
+void getpromp(char promp[]){
+	char hostname[TAM];
+
+	strcat(promp, "@");
+	gethostname(hostname,TAM);
+	strcat(promp,hostname);
+	printf("%s\n",promp);
+}
