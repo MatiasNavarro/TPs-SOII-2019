@@ -163,7 +163,6 @@ int userLog(char promp[]){
 
 		for(int i=0; i<CANT; i++){
 			if(strcmp(users[i].uname, usuario)==0){
-				printf("User Correct \n");
 				if(strcmp(users[i].pass,password)==0){
 					printf("Autenticacion CORRECTA\n");
 					strcpy(promp,users[i].uname);
