@@ -10,7 +10,6 @@
 #include "../includes/comunes.h"
 #include "../includes/funciones_servidor.h"
 
-
 /**
 * @brief Función principal del Servidor.
 *
@@ -20,11 +19,10 @@
 int main(int argc, char *argv[])
 {
 	int sockfd, newsockfd, servlen, n, pid;
-	int static conect = 0;
 	unsigned int clilen;
 	struct sockaddr_un cli_addr, serv_addr;
 	char buffer[TAM];
-	char promp [TAM];
+	char promp[TAM];
 
 	strcpy(users[0].uname, "Nicolas"), strcpy(users[0].pass, "nn26");
 	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "fn25");
@@ -72,6 +70,7 @@ int main(int argc, char *argv[])
 
 	while (1)
 	{
+		int conect;
 		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 		if (newsockfd < 0)
 		{
@@ -90,13 +89,20 @@ int main(int argc, char *argv[])
 		{ // proceso hijo
 			close(sockfd);
 
+			conect = userLog(promp);
+			if (conect == 1)
+			{
+				printf("Autenticacion CORRECTA\n");
+				getpromp(promp);
+			}
+			else
+			{
+				printf("Error de autenticacion \n");
+				exit(1);
+			}
+
 			while (1)
 			{
-				if(conect == 0){
-					conect = userLog(promp);
-					getpromp(promp);
-				}
-
 				memset(buffer, 0, TAM);
 				n = read(newsockfd, buffer, TAM - 1);
 				if (n < 0)
@@ -104,7 +110,6 @@ int main(int argc, char *argv[])
 					perror("lectura de socket");
 					exit(1);
 				}
-
 
 				printf("PROCESO: %d. ", getpid());
 				printf("Recibí: %s", buffer);
@@ -131,6 +136,7 @@ int main(int argc, char *argv[])
 			close(newsockfd);
 		}
 	}
+
 	return 0;
 }
 
@@ -143,35 +149,40 @@ int main(int argc, char *argv[])
  * @return 1
  */
 
-int userLog(char promp[]){
-	char usuario [20], password [20];
-	int flag = 1;
+int userLog(char promp[])
+{
+	char usuario[20], password[20];
+	int error = 0;
 	printf("Autenticacion de usuario: \n");
-	while(flag){
+	while (error < 3)
+	{
 		printf("Usuario: ");
-		fgets(usuario,20,stdin);
+		fgets(usuario, 20, stdin);
 		fflush(stdout);
 		strtok(usuario, "\n");
 
 		printf("Password: ");
-		fgets(password,20,stdin);
+		fgets(password, 20, stdin);
 		fflush(stdout);
 		strtok(password, "\n");
 
-		for(int i=0; i<CANT; i++){
-			if(strcmp(users[i].uname, usuario)==0){
-				if(strcmp(users[i].pass,password)==0){
-					printf("Autenticacion CORRECTA\n");
-					strcpy(promp,users[i].uname);
-					flag = 0;
+		for (int i = 0; i < CANT; i++)
+		{
+			if (strcmp(users[i].uname, usuario) == 0)
+			{
+				if (strcmp(users[i].pass, password) == 0)
+				{
+					strcpy(promp, users[i].uname);
+					return 1;
 					break;
 				}
 			}
 		}
-	}
-	return 1;
-}
 
+		error++;
+	}
+	return -1;
+}
 
 /**
  * @brief Funcion que arma el promp completo user[i].uname@hostname
@@ -180,11 +191,12 @@ int userLog(char promp[]){
  * @date 05/04/2019
  * @return 
  */
-void getpromp(char promp[]){
+void getpromp(char promp[])
+{
 	char hostname[TAM];
 
 	strcat(promp, "@");
-	gethostname(hostname,TAM);
-	strcat(promp,hostname);
-	printf("%s\n",promp);
+	gethostname(hostname, TAM);
+	strcat(promp, hostname);
+	printf("%s\n", promp);
 }
