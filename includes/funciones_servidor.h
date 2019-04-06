@@ -21,7 +21,7 @@ struct user
 } users[CANT];
 
 /*!< Prototipos de funciones */
-void setUsers(void);			//Carga los usuarios
+void setUsers(void);		//Carga los usuarios
 int userLog(char[]); 		//Autenticacion de ingreso
 void getpromp(char[]); 		//Generacion de promp
 int updateFirmware(int);	//Actualizacion de Firmware

@@ -10,17 +10,18 @@
 
 #include <ctype.h>
 #include <stddef.h>
-
+#define MAX 50
 /*!< Estructura de satelite, con campo ID (Identificador del satelite), 
 campo uptime(Tiempo que lleva vivo), campo version(Version del Firmware), campo consumoCPU (consumo de CPU). */
 struct satelite{
-    int ID;
-    char uptime[20];
-    char version[20];
-    char consumoCPU[20];
-}
+    char ID[20];
+    char uptime[MAX];
+    char version[MAX];
+    char consumoCPU[MAX];
+};
 
-void setInfo(void);             //Carga inicial de los datos del satelite
+void setInfo(void);         //Carga inicial de los datos del satelite
+void getInfo(void);         //Imprime la informacion del satelite
 int updateFirmware(int);    //Actualizacion de Firmware
 int startScanning(int);     //Inicia el escaneo de toda la tierra
 int telemetria(int);        //Envia informacion a la estacion terrena
