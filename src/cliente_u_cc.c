@@ -1,15 +1,13 @@
-/* Cliente en el dominio Unix - orientado a corrientes */
-
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <sys/socket.h>
-// #include <sys/un.h>
-// #include <errno.h>
-// #include <unistd.h>
-
-// #define TAM 80
+/** @file cliente_u_cc.c
+ *  @brief Archivo principal del Cliente.
+ *
+ *  Contiene el programa principal que ejecutará el cliente.
+ *
+ *  @author Navarro, Matias Alejandro
+ */
 
 #include "../includes/comunes.h"
+#include "../includes/funciones_cliente.h"
 
 int main( int argc, char *argv[] ) {
 	int sockfd, servlen, n;

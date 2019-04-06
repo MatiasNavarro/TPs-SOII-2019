@@ -7,6 +7,14 @@
  *  @author Matias Navarro
  */
 
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+
 #include "../includes/comunes.h"
 #include "../includes/funciones_servidor.h"
 
@@ -23,19 +31,8 @@ int main(int argc, char *argv[])
 	struct sockaddr_un cli_addr, serv_addr;
 	char buffer[TAM];
 	char promp[TAM];
-
-	strcpy(users[0].uname, "Nicolas"), strcpy(users[0].pass, "nn26");
-	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "fn25");
-	strcpy(users[2].uname, "Matias"), strcpy(users[2].pass, "mn24");
-	strcpy(users[3].uname, "Ciro"), strcpy(users[3].pass, "cn5");
-	strcpy(users[4].uname, "Bianca"), strcpy(users[4].pass, "bn4");
-
-	// // users[0].name = "Federico", users[0].pass = "25";
-	// users[0].name = "Matias", 	users[0].pass = "24";
-	// users[0].name = "Ciro", 	users[0].pass = "5";
-	// users[0].name = "Bianca",	users[0].pass = "4";
-	printf("%s %s \n", users[0].uname, users[0].pass);
-
+	setUsers();
+	
 	/* Se toma el nombre del socket de la línea de comandos */
 	if (argc != 2)
 	{
@@ -141,6 +138,21 @@ int main(int argc, char *argv[])
 }
 
 /**
+ * @brief Funcion encargada de cargar los distintos usuarios
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+void setUsers(){
+	strcpy(users[0].uname, "Nicolas"), strcpy(users[0].pass, "nn26");
+	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "fn25");
+	strcpy(users[2].uname, "Matias"), strcpy(users[2].pass, "mn24");
+	strcpy(users[3].uname, "Ciro"), strcpy(users[3].pass, "cn5");
+	strcpy(users[4].uname, "Bianca"), strcpy(users[4].pass, "bn4");
+}
+
+/**
  * @brief Funcion que comprueba la autenticacion de usuarios en el servidor. 
  * Reingresa el usuario, hasta que la contraseña y el usuario sean correctas.
  * @author Navarro, Matias Alejandro
@@ -148,7 +160,6 @@ int main(int argc, char *argv[])
  * @date 05/04/2019
  * @return 1
  */
-
 int userLog(char promp[])
 {
 	char usuario[20], password[20];

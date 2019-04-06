@@ -12,7 +12,7 @@
 #include <stddef.h>
 #define CANT 5
 
-/*!< Estructura dbase de datos de usuarios, con campo uname (Nombre de Usuario)
+/*!< Estructura de usuarios, con campo uname (Nombre de Usuario)
 y campo pass (Contrasena). */
 struct user
 {
@@ -21,5 +21,9 @@ struct user
 } users[CANT];
 
 /*!< Prototipos de funciones */
-int userLog(char[]); 	//Autenticacion de ingreso
-void getpromp(char[]); 	//Generacion de promp
+void setUsers(void);			//Carga los usuarios
+int userLog(char[]); 		//Autenticacion de ingreso
+void getpromp(char[]); 		//Generacion de promp
+int updateFirmware(int);	//Actualizacion de Firmware
+int startScanning(int);		//Inicia el escaneo de toda la tierra
+int telemetria(int);		//Envia informacion a la estacion terrena
