@@ -8,17 +8,8 @@
  */
 
 #include "../includes/comunes.h"
-#define CANT 5
+#include "../includes/funciones_servidor.h"
 
-//Estructura que guarda el nombre y el pass de los clientes
-struct user
-{
-	char uname[20];
-	char pass[20];
-} users[CANT];
-
-int userLog(char[]); //Autenticacion de ingreso
-void getpromp(char[]);
 
 int main(int argc, char *argv[])
 {
