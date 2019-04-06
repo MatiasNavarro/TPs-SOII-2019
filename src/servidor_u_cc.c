@@ -177,7 +177,13 @@ int userLog(char promp[]){
 }
 
 
-
+/**
+ * @brief Funcion que arma el promp completo user[i].uname@hostname
+ * @author Navarro, Matias Alejandro
+ * @param promp: arreglo donde se arma el promp
+ * @date 05/04/2019
+ * @return 
+ */
 void getpromp(char promp[]){
 	char hostname[TAM];
 
