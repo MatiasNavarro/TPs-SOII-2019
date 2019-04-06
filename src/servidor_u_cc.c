@@ -11,6 +11,12 @@
 #include "../includes/funciones_servidor.h"
 
 
+/**
+* @brief Función principal del Servidor.
+*
+* Crea un socket, espera hasta 5 conexiones
+* y ejecuta las funciones que recibe del cliente.
+*/
 int main(int argc, char *argv[])
 {
 	int sockfd, newsockfd, servlen, n, pid;
