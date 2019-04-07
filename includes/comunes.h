@@ -12,7 +12,7 @@
 #include <sys/un.h>
 #include <errno.h>
 #include <unistd.h>
-#define TAM 80
+#define TAM 1024
 
 #define endMsg "/END"
 #define disconnectMsg "/BYE"

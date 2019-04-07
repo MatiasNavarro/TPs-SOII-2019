@@ -108,8 +108,9 @@ int main(int argc, char *argv[])
 					exit(1);
 				}
 
+				printf("%s ", promp);
 				printf("PROCESO: %d. ", getpid());
-				printf("Recibí: %s", buffer);
+				printf("Recibí: %s \n", buffer);
 				fflush(stdout);
 
 				n = write(newsockfd, "Obtuve su mensaje", 18);
@@ -118,6 +119,7 @@ int main(int argc, char *argv[])
 					perror("escritura en socket");
 					exit(1);
 				}
+
 				// Verificación de si hay que terminar
 				buffer[strlen(buffer) - 1] = '\0';
 				if (!strcmp("fin", buffer))

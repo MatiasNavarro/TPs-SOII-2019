@@ -39,7 +39,7 @@ int main( int argc, char *argv[] ) {
 	}
 
 	setInfo();
-	
+	getInfo();
 
 	while(1) {
 
@@ -79,40 +79,34 @@ int main( int argc, char *argv[] ) {
 
 //Actualiza la informacion del satelite
 void setInfo(){
-	FILE *file_version;
-	FILE *consumo;
-	char buffer2[1024];
-	char stateFile[1024];
-	char pid[1024];
+	FILE *versionFile;
+	FILE *consumoFile;
+	char buffer2[TAM];
+	char stateFile[TAM];
+	char pid[TAM];
 
 	strcpy(sat.ID, "ARCOR SAT");
 	strcpy(sat.uptime, "11:20 a.m");
 	
-	printf("Ack 1\n");
 	//Lee la version del firmware del Archivo firmwareClient.bin para cargar la version
-	file_version = fopen("./bin/firmwareClient.bin", "rb");
-	printf("Ack 2\n");
-	memset(buffer2,0,sizeof(buffer2));
-	fread(buffer2,sizeof(buffer2),1,file_version);
-	printf("Ack 3\n");
+	versionFile = fopen("../bin/firmwareCliente.bin", "r");
+	bzero(buffer2, sizeof(buffer2));
+	fread(buffer2,1,sizeof(buffer2)-1,versionFile);
 	strcpy(sat.version,buffer2);
-	fclose(file_version);
+	fclose(versionFile);
 	memset(buffer2,0,sizeof(buffer2));
-	
 
-	strcpy(stateFile,"ps -Ao vsize,pid,pcpu | greap ");
+	strcpy(stateFile,"ps -Ao vsize,pid,pcpu | grep ");
 	sprintf(pid,"%ld", (long)getpid());
 	strcat(stateFile, pid);
-	strcat(stateFile, " >> ./bin/stateFile.txt");
-	system("rm ./bin/stateFilw.txt");
+	strcat(stateFile, " >> ../bin/stateFile.bin");
+	system("rm ../bin/stateFile.bin");
 	system(stateFile);
-	consumo = fopen("./bin/stateFile.txt","rb");
-
-	printf("Ack 3\n");
-	fread(buffer2,1,TAM-1, consumo);
+	consumoFile = fopen("../bin/stateFile.bin","r");
+	fread(buffer2,1,sizeof(buffer2)-1, consumoFile);
 	strtok(buffer2, "\n");
 	strcpy(sat.consumoCPU, buffer2);
-	fclose(consumo);
+	fclose(consumoFile);
 }
 
 void getInfo(){
