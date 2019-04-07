@@ -44,9 +44,9 @@ int main( int argc, char *argv[] ) {
 	while(1) {
 
 		memset( buffer, '\0', TAM );
-		printf( "Ingrese el mensaje a enviar: " );
-		fgets( buffer, TAM-1, stdin );
-		strtok(buffer, "\n");
+		// printf( "Ingrese el mensaje a enviar: " );
+		// fgets( buffer, TAM-1, stdin );
+		// strtok(buffer, "\n");
 
 		n = write( sockfd, buffer, strlen(buffer) );
                 if ( n < 0 ) {
@@ -68,7 +68,10 @@ int main( int argc, char *argv[] ) {
                 }
 
                 printf( "Respuesta: %s\n", buffer );
-                if( terminar ) {
+		// if(strcmp(buffer,"update")==0);
+
+
+                if(terminar) {
                         printf( "Finalizando ejecución\n" );
                         exit(0);
                 }
@@ -77,11 +80,19 @@ int main( int argc, char *argv[] ) {
 }
 
 
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+
 //Actualiza la informacion del satelite
 void setInfo(){
 	FILE *versionFile;
 	FILE *consumoFile;
-	char buffer2[TAM];
+	char buffer[TAM];
 	char stateFile[TAM];
 	char pid[TAM];
 
@@ -90,11 +101,11 @@ void setInfo(){
 	
 	//Lee la version del firmware del Archivo firmwareClient.bin para cargar la version
 	versionFile = fopen("../bin/firmwareCliente.bin", "r");
-	bzero(buffer2, sizeof(buffer2));
-	fread(buffer2,1,sizeof(buffer2)-1,versionFile);
-	strcpy(sat.version,buffer2);
+	bzero(buffer, sizeof(buffer));
+	fread(buffer,1,sizeof(buffer)-1,versionFile);
+	strcpy(sat.version,buffer);
 	fclose(versionFile);
-	memset(buffer2,0,sizeof(buffer2));
+	memset(buffer,0,sizeof(buffer));
 
 	strcpy(stateFile,"ps -Ao vsize,pid,pcpu | grep ");
 	sprintf(pid,"%ld", (long)getpid());
@@ -103,15 +114,24 @@ void setInfo(){
 	system("rm ../bin/stateFile.bin");
 	system(stateFile);
 	consumoFile = fopen("../bin/stateFile.bin","r");
-	fread(buffer2,1,sizeof(buffer2)-1, consumoFile);
-	strtok(buffer2, "\n");
-	strcpy(sat.consumoCPU, buffer2);
+	fread(buffer,1,sizeof(buffer)-1, consumoFile);
+	strtok(buffer, "\n");
+	strcpy(sat.consumoCPU, buffer);
 	fclose(consumoFile);
 }
 
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+//Imprime la informacion actual del satelite
 void getInfo(){
 	printf("ID = %s\n", sat.ID);
 	printf("Uptime = %s\n", sat.uptime);
 	printf("Version = %s\n", sat.version);
 	printf("Consumo = %s\n", sat.consumoCPU);
 }
+

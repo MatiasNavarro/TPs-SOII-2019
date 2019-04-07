@@ -91,6 +91,7 @@ int main(int argc, char *argv[])
 			{
 				printf("Autenticacion CORRECTA\n");
 				getpromp(promp);
+				n = write(newsockfd, "Conectado", sizeof("Conectado"));
 			}
 			else
 			{
@@ -100,6 +101,8 @@ int main(int argc, char *argv[])
 
 			while (1)
 			{
+				setComando(newsockfd,promp);
+
 				memset(buffer, 0, TAM);
 				n = read(newsockfd, buffer, TAM - 1);
 				if (n < 0)
@@ -127,6 +130,7 @@ int main(int argc, char *argv[])
 					printf("PROCESO %d. Como recibí 'fin', termino la ejecución.\n\n", getpid());
 					exit(0);
 				}
+
 			}
 		}
 		else
@@ -166,7 +170,7 @@ int userLog(char promp[])
 {
 	char usuario[20], password[20];
 	int error = 0;
-	printf("Autenticacion de usuario: \n");
+	printf("Autenticacion de usuario\n");
 	while (error < 3)
 	{
 		printf("Usuario: ");
@@ -198,7 +202,7 @@ int userLog(char promp[])
 }
 
 /**
- * @brief Funcion que arma el promp completo user[i].uname@hostname
+ * @brief Funcion que arma el promp completo user[i].uname@hostname: 
  * @author Navarro, Matias Alejandro
  * @param promp: arreglo donde se arma el promp
  * @date 05/04/2019
@@ -211,5 +215,43 @@ void getpromp(char promp[])
 	strcat(promp, "@");
 	gethostname(hostname, TAM);
 	strcat(promp, hostname);
-	printf("%s\n", promp);
+	// printf("%s\n", promp);
+}
+
+
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+void setComando(int newsockfd, char promp[]){
+	char buffer[TAM];
+	//int aux1, aux2;
+
+	while(1){ 
+		printf("%s: ", promp);
+		memset(buffer,0,sizeof(buffer));
+		fgets(buffer,sizeof(buffer)-1,stdin);
+		strtok(buffer, "\n");
+
+		printf("%s\n",buffer);
+
+		if(strcmp(buffer,"update firmware")==0){
+			printf("Actualizacion de Firmware\n");
+			break;
+		}
+		else if(strcmp(buffer,"start scanning")==0){
+			printf("Star Scannig\n");
+			break;
+		}
+		if(strcmp(buffer,"get telemetria")==0){
+			printf("Obteniendo telemetria\n");
+			break;
+		}
+		else {
+			printf("Comando invalido\n");
+		}
+	}
 }
