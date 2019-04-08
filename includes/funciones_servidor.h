@@ -28,3 +28,4 @@ void updateFirmware(int);		//Actualizacion de Firmware
 int startScanning(int);			//Inicia el escaneo de toda la tierra
 int telemetria(int);			//Envia informacion a la estacion terrena
 void setComando(int,char[]);	//Ingreso de comandos que luego son enviados al satelite
+void getComandosValidos(void);	//Imprime los comandos validos

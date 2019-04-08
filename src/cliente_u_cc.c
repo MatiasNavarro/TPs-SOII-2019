@@ -70,6 +70,8 @@ int main( int argc, char *argv[] ) {
                 printf( "Respuesta: %s\n", buffer );
 		if(strcmp(buffer,"update firmware")==0){
 			updateFirmware(sockfd);
+			setInfo();
+			getInfo();
 		}
 
 
@@ -131,10 +133,12 @@ void setInfo(){
  */
 //Imprime la informacion actual del satelite
 void getInfo(){
+	printf("\n");
 	printf("ID = %s\n", sat.ID);
 	printf("Uptime = %s\n", sat.uptime);
 	printf("Version = %s\n", sat.version);
 	printf("Consumo = %s\n", sat.consumoCPU);
+	printf("\n");
 }
 
 /**
@@ -147,7 +151,7 @@ void getInfo(){
 void updateFirmware(int sockfd){
 	FILE *firmware;
 	char buffer[TAM];
-	int size, reciv_size,read_size ,packet_size= 0 ,num_packet = 0, n;
+	int size, reciv_size= 0,read_size ,packet_size= 0 ,num_packet = 0, n;
 	memset(buffer,0,sizeof(buffer));
 
 	//Mensaje de confirmacion que se encuentra listo para el update
@@ -158,16 +162,18 @@ void updateFirmware(int sockfd){
 	}
 
 	//Recibe el tamaño del archivo 
-	n = read(sockfd,&size,sizeof(size));
-	if(n<0){
+	packet_size = read(sockfd,&size,sizeof(size));
+	if(packet_size<0){
 		printf("Error en el update\n");
 		return;
 	}
 
 	printf("Tamañano del archivo de update: %i\n", packet_size);
+	printf("ACK Client\n");
 
 	//Verificacion del tamaño
 	write(sockfd,&size,sizeof(size));
+	printf("ACK Client2\n");
 
 	//Abre el archivo donde escribira los datos de la actualizacion
 	firmware = fopen("../bin/firmwareCliente.bin","w");
@@ -179,6 +185,7 @@ void updateFirmware(int sockfd){
 
 	while(reciv_size < size){
 
+		printf("ENTRE\n");
 		memset(buffer,0,sizeof(buffer));
 		packet_size = read(sockfd,buffer,sizeof(buffer));
 		if(packet_size<0){

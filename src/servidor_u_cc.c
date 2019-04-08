@@ -218,6 +218,23 @@ void getpromp(char promp[])
 	// printf("%s\n", promp);
 }
 
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+void getComandosValidos(){
+	printf("\n");
+	printf("- update firmware: actualiza el firmware del satelite\n");
+	printf("- start scanning: comienza el escaneo de la tierra\n");
+	printf("- get telemetria: obtiene los datos del satelite\n");
+	printf("- exit: apagar el sistema\n");
+	printf("\n");
+	fflush(stdout);
+}
+
 
 /**
  * @brief Funcion 
@@ -236,26 +253,28 @@ void setComando(int newsockfd, char promp[]){
 		fgets(buffer,sizeof(buffer)-1,stdin);	//Ingreso un comando
 		strtok(buffer, "\n");
 
-		printf("%s\n",buffer);
-
 		//Comprueba que tipo de comando se ingreso
 		if(strcmp(buffer,"update firmware")==0){
 			printf("Actualizando Firmware\n");
 			write(newsockfd, buffer, sizeof(buffer));
 			sleep(5);
 			updateFirmware(newsockfd);
-			break;
 		}
 		else if(strcmp(buffer,"start scanning")==0){
 			printf("Star Scannig\n");
+		}
+		else if(strcmp(buffer,"get telemetria")==0){
+			printf("Obteniendo telemetria\n");
+		}
+		else if(strcmp(buffer,"exit")==0){
+			printf("Apagando Sistema\n");
 			break;
 		}
-		if(strcmp(buffer,"get telemetria")==0){
-			printf("Obteniendo telemetria\n");
-			break;
+		else if(strcmp(buffer,"help")==0){
+			getComandosValidos();
 		}
 		else {
-			printf("Comando invalido\n");
+			printf("Comando invalido. Ingrese 'help' para mas informacion\n");
 		}
 	}
 }
@@ -301,6 +320,7 @@ void updateFirmware(int newsockfd){
 	fseek(firmware,0,SEEK_END);
 	size = ftell(firmware);
 	fseek(firmware,0,SEEK_SET);
+	printf("Size %i\n", size);
 
 	n = write(newsockfd,&size,sizeof(size));
 	if(n<0){
@@ -308,13 +328,14 @@ void updateFirmware(int newsockfd){
 		return;
 	}
 	printf("Enviando binario\n");
+	fflush(stdout);
+	printf("ACK Serv\n");
 
 	n= read(newsockfd,&buffer, sizeof(buffer));
 	if(n<0){
 		printf("Error en el update\n");
 		return;
 	}
-
 
 	while(!feof(firmware)){
 		//Lee del archivo y lo coloca en el buffer
