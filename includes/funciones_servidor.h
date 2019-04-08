@@ -21,10 +21,10 @@ struct user
 } users[CANT];
 
 /*!< Prototipos de funciones */
-void setUsers(void);		//Carga los usuarios
-int userLog(char[]); 		//Autenticacion de ingreso
-void getpromp(char[]); 		//Generacion de promp
-int updateFirmware(int);	//Actualizacion de Firmware
-int startScanning(int);		//Inicia el escaneo de toda la tierra
-int telemetria(int);		//Envia informacion a la estacion terrena
-void setComando(int,char[]);		//Ingreso de comandos que luego son enviados al satelite
+void setUsers(void);			//Carga los usuarios
+int userLog(char[]); 			//Autenticacion de ingreso
+void getpromp(char[]); 			//Generacion de promp
+void updateFirmware(int);		//Actualizacion de Firmware
+int startScanning(int);			//Inicia el escaneo de toda la tierra
+int telemetria(int);			//Envia informacion a la estacion terrena
+void setComando(int,char[]);	//Ingreso de comandos que luego son enviados al satelite

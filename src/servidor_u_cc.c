@@ -233,13 +233,17 @@ void setComando(int newsockfd, char promp[]){
 	while(1){ 
 		printf("%s: ", promp);
 		memset(buffer,0,sizeof(buffer));
-		fgets(buffer,sizeof(buffer)-1,stdin);
+		fgets(buffer,sizeof(buffer)-1,stdin);	//Ingreso un comando
 		strtok(buffer, "\n");
 
 		printf("%s\n",buffer);
 
+		//Comprueba que tipo de comando se ingreso
 		if(strcmp(buffer,"update firmware")==0){
-			printf("Actualizacion de Firmware\n");
+			printf("Actualizando Firmware\n");
+			write(newsockfd, buffer, sizeof(buffer));
+			sleep(5);
+			updateFirmware(newsockfd);
 			break;
 		}
 		else if(strcmp(buffer,"start scanning")==0){
@@ -254,4 +258,75 @@ void setComando(int newsockfd, char promp[]){
 			printf("Comando invalido\n");
 		}
 	}
+}
+
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+void updateFirmware(int newsockfd){
+	FILE *firmware;
+	char buffer[TAM], send[TAM];
+	int size, read_size, num_packet = 1, n;
+	memset(buffer,0,sizeof(buffer));
+	memset(send,0,sizeof(send));
+
+	n = read(newsockfd,buffer,sizeof(buffer));
+	if(n<0){
+		printf("Error al leer el socket");
+		return ;
+	}
+
+	//Compruebo que el satelite este listo para la actualizacion
+	if(strcmp(buffer,"OK")==0){
+		printf("Satelite Listo\n");
+	}
+	else
+	{
+		printf("Error en el update\n");
+		return;
+	}
+	
+	//Abre el binario
+	firmware = fopen("../bin/firmwareUpdate.bin", "r");
+	if (firmware == NULL){	//Comprueba que el archivo no este vacio
+		printf("Error al cargar el binario\n");
+		return;
+	}
+
+	
+	fseek(firmware,0,SEEK_END);
+	size = ftell(firmware);
+	fseek(firmware,0,SEEK_SET);
+
+	n = write(newsockfd,&size,sizeof(size));
+	if(n<0){
+		printf("Error en el update\n");
+		return;
+	}
+	printf("Enviando binario\n");
+
+	n= read(newsockfd,&buffer, sizeof(buffer));
+	if(n<0){
+		printf("Error en el update\n");
+		return;
+	}
+
+
+	while(!feof(firmware)){
+		//Lee del archivo y lo coloca en el buffer
+		read_size = fread(send,1,sizeof(size)-1,firmware);
+
+		//Envio el dato
+		write(newsockfd,send,read_size);
+		num_packet++;
+
+		memset(send,0,sizeof(send));
+	}
+
+
+	fclose(firmware);
 }

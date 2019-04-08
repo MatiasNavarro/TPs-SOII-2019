@@ -22,6 +22,6 @@ struct satelite{
 
 void setInfo(void);         //Carga inicial de los datos del satelite
 void getInfo(void);         //Imprime la informacion del satelite
-int updateFirmware(int);    //Actualizacion de Firmware
+void updateFirmware(int);    //Actualizacion de Firmware
 int startScanning(int);     //Inicia el escaneo de toda la tierra
 int telemetria(int);        //Envia informacion a la estacion terrena

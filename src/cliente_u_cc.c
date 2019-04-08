@@ -68,7 +68,9 @@ int main( int argc, char *argv[] ) {
                 }
 
                 printf( "Respuesta: %s\n", buffer );
-		// if(strcmp(buffer,"update")==0);
+		if(strcmp(buffer,"update firmware")==0){
+			updateFirmware(sockfd);
+		}
 
 
                 if(terminar) {
@@ -135,3 +137,72 @@ void getInfo(){
 	printf("Consumo = %s\n", sat.consumoCPU);
 }
 
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+void updateFirmware(int sockfd){
+	FILE *firmware;
+	char buffer[TAM];
+	int size, reciv_size,read_size ,packet_size= 0 ,num_packet = 0, n;
+	memset(buffer,0,sizeof(buffer));
+
+	//Mensaje de confirmacion que se encuentra listo para el update
+	n = write(sockfd,"OK",sizeof("OK"));
+	if(n<0){
+		printf("Error en el update\n");
+		return;
+	}
+
+	//Recibe el tamaño del archivo 
+	n = read(sockfd,&size,sizeof(size));
+	if(n<0){
+		printf("Error en el update\n");
+		return;
+	}
+
+	printf("Tamañano del archivo de update: %i\n", packet_size);
+
+	//Verificacion del tamaño
+	write(sockfd,&size,sizeof(size));
+
+	//Abre el archivo donde escribira los datos de la actualizacion
+	firmware = fopen("../bin/firmwareCliente.bin","w");
+	if(firmware == NULL){
+		printf("Error al abrir el archivo\n");
+		printf("Error en el update");
+		return;
+	}
+
+	while(reciv_size < size){
+
+		memset(buffer,0,sizeof(buffer));
+		packet_size = read(sockfd,buffer,sizeof(buffer));
+		if(packet_size<0){
+			printf("Error en el update");
+			return;			
+		}
+
+		printf("Paquete %i recibido correctamente\n", num_packet);
+		printf("Tamaño del paquete: %i\n", packet_size);
+
+		read_size = fwrite(buffer,1,packet_size,firmware);
+		if(read_size != packet_size){
+			printf("Error de escritura\n");
+			printf("Error en el update");
+			return;	
+		}
+
+		reciv_size += packet_size;
+		num_packet++;
+
+		printf("Tamaño total del binario recibido: %i\n", reciv_size);
+	}
+
+	fclose(firmware);
+	printf("Actualizando firmware ... \n");
+
+}
