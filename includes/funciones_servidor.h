@@ -10,7 +10,7 @@
 
 #include <ctype.h>
 #include <stddef.h>
-#define CANT 5
+#define CANT 6
 
 /*!< Estructura de usuarios, con campo uname (Nombre de Usuario)
 y campo pass (Contrasena). */
@@ -21,6 +21,7 @@ struct user
 } users[CANT];
 
 /*!< Prototipos de funciones */
+
 void setUsers(void);			//Carga los usuarios
 int userLog(char[]); 			//Autenticacion de ingreso
 void getpromp(char[]); 			//Generacion de promp

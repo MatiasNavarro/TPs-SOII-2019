@@ -38,7 +38,9 @@ int main( int argc, char *argv[] ) {
 		exit( 1 );
 	}
 
+	//Obtengo la informacion del satelite
 	setInfo();
+	//Imprimo la informacion del satelite
 	getInfo();
 
 	while(1) {
@@ -69,8 +71,11 @@ int main( int argc, char *argv[] ) {
 
                 printf( "Respuesta: %s\n", buffer );
 		if(strcmp(buffer,"update firmware")==0){
+			//Actualiza la version del firmware
 			updateFirmware(sockfd);
+			//Obtiene informacion del satelite
 			setInfo();
+			//Imprime informacion del satelite
 			getInfo();
 		}
 
@@ -85,11 +90,10 @@ int main( int argc, char *argv[] ) {
 
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
- * @date 05/04/2019
- * @return 
+ * @brief Funcion que actualiza los campos ID, uptime,version y consumoCPU
+ * del satelite. 
+ * @date 05/04/2019.
+ * @author Navarro, Matias Alejandro.
  */
 
 //Actualiza la informacion del satelite
@@ -111,6 +115,7 @@ void setInfo(){
 	fclose(versionFile);
 	memset(buffer,0,sizeof(buffer));
 
+	//Obtiene el pid del proceso para poder saber el consumo
 	strcpy(stateFile,"ps -Ao vsize,pid,pcpu | grep ");
 	sprintf(pid,"%ld", (long)getpid());
 	strcat(stateFile, pid);
@@ -125,11 +130,10 @@ void setInfo(){
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
+ * @brief Funcion que imprime el estado actual de todos los campos del satelite
+ * ID, uptime, version y consumoCPU.
  * @date 05/04/2019
- * @return 
+ * @author Navarro, Matias Alejandro.
  */
 //Imprime la informacion actual del satelite
 void getInfo(){
@@ -142,11 +146,11 @@ void getInfo(){
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
- * @date 05/04/2019
- * @return 
+ * @brief Funcion que actualiza el firmware del satelite, a partir de un archivo binario
+ * enviado por el servidor.
+ * @param sockfd: socket por donde se envian y reciben los datos.
+ * @date 05/04/2019.
+ * @author Navarro, Matias Alejandro.
  */
 void updateFirmware(int sockfd){
 	FILE *firmware;
@@ -167,13 +171,9 @@ void updateFirmware(int sockfd){
 		printf("Error en el update\n");
 		return;
 	}
-
 	printf("Tamañano del archivo de update: %i\n", packet_size);
-	printf("ACK Client\n");
-
 	//Verificacion del tamaño
 	write(sockfd,&size,sizeof(size));
-	printf("ACK Client2\n");
 
 	//Abre el archivo donde escribira los datos de la actualizacion
 	firmware = fopen("../bin/firmwareCliente.bin","w");
@@ -184,8 +184,6 @@ void updateFirmware(int sockfd){
 	}
 
 	while(reciv_size < size){
-
-		printf("ENTRE\n");
 		memset(buffer,0,sizeof(buffer));
 		packet_size = read(sockfd,buffer,sizeof(buffer));
 		if(packet_size<0){
