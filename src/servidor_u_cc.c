@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
 	//Cargo los usuarios al sistema
 	setUsers();
-	
+
 	/* Se toma el nombre del socket de la línea de comandos */
 	if (argc != 2)
 	{
@@ -105,41 +105,48 @@ int main(int argc, char *argv[])
 			while (1)
 			{
 				//Ingresa uno de los comando posibles para mandar al satelite
-				setComando(newsockfd,promp);
+				if(conect==1){
+					n = setComando(newsockfd, promp);
+					if(n==-1){
+						conect=0;
+						write(newsockfd,"Conexion Cerrada",sizeof("Conexion Cerrada"));
+						close(newsockfd);
+					}
+				}
+							
 
 				memset(buffer, 0, TAM);
-				n = read(newsockfd, buffer, TAM - 1);
-				if (n < 0)
-				{
-					perror("lectura de socket");
-					exit(1);
-				}
+				// n = read(newsockfd, buffer, TAM - 1);
+				// if (n < 0)
+				// {
+				// 	perror("lectura de socket");
+				// 	exit(1);
+				// }
 
-				printf("%s ", promp);
-				printf("PROCESO: %d. ", getpid());
-				printf("Recibí: %s \n", buffer);
-				fflush(stdout);
+				// printf("%s ", promp);
+				// printf("PROCESO: %d. ", getpid());
+				// printf("Recibí: %s \n", buffer);
+				// fflush(stdout);
 
-				n = write(newsockfd, "Obtuve su mensaje", 18);
-				if (n < 0)
-				{
-					perror("escritura en socket");
-					exit(1);
-				}
+				// n = write(newsockfd, "Obtuve su mensaje", 18);
+				// if (n < 0)
+				// {
+				// 	perror("escritura en socket");
+				// 	exit(1);
+				// }
 
 				// Verificación de si hay que terminar
 				//buffer[strlen(buffer) - 1] = '\0';
-				if (strcmp("fin", buffer)==0)
+				if (strcmp("fin", buffer) == 0)
 				{
 					printf("PROCESO %d. Como recibí 'fin', termino la ejecución.\n\n", getpid());
 					exit(0);
 				}
-
 			}
 		}
 		else
 		{
-			printf("SERVIDOR: Nuevo cliente, que atiende el proceso hijo: %d\n", pid);
+			printf("\n \nSERVIDOR: Nuevo cliente, que atiende el proceso hijo: %d\n", pid);
 			close(newsockfd);
 		}
 	}
@@ -147,13 +154,13 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-
 /**
  * @brief Funcion encargada de cargar los distintos usuarios en el servidor.
  * @date 05/04/2019.
  * @author Navarro, Matias Alejandro.
  */
-void setUsers(){
+void setUsers()
+{
 	strcpy(users[0].uname, "Nicolas"), strcpy(users[0].pass, "nn26");
 	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "fn25");
 	strcpy(users[2].uname, "Matias"), strcpy(users[2].pass, "mn24");
@@ -235,16 +242,16 @@ void getpromp(char promp[])
  * @date 05/04/2019.
  * @author Navarro, Matias Alejandro
  */
-void getComandosValidos(){
+void getComandosValidos()
+{
 	printf("\n");
 	printf("- update firmware: actualiza el firmware del satelite\n");
-	printf("- start scanning: comienza el escaneo de la tierra\n");
 	printf("- get telemetria: obtiene los datos del satelite\n");
+	printf("- start scanning: comienza el escaneo de la tierra\n");
 	printf("- exit: apagar el sistema\n");
 	printf("\n");
 	fflush(stdout);
 }
-
 
 /**
  * @brief Funcion que permite ingresar los distintos comandos disponibles. 
@@ -253,41 +260,69 @@ void getComandosValidos(){
  * @date 05/04/2019.
  * @author Navarro, Matias Alejandro.
  */
-void setComando(int newsockfd, char promp[]){
+int setComando(int newsockfd, char promp[])
+{
 	char buffer[TAM];
+	char infoSat[TAM];
+	int v, flag=1;
 
 	//Bucle que espera los comandos
-	while(1){ 
+	while (flag)
+	{
 		printf("%s: ", promp);
-		memset(buffer,0,sizeof(buffer));
+		memset(buffer, 0, sizeof(buffer));
 		//Ingreso de comando
-		fgets(buffer,sizeof(buffer)-1,stdin);
+		fgets(buffer, sizeof(buffer) - 1, stdin);
 		strtok(buffer, "\n");
 
 		//Comprueba que tipo de comando se ingreso
-		if(strcmp(buffer,"update firmware")==0){
+		//Update
+		if (strcmp(buffer, "update firmware") == 0)
+		{
 			printf("Actualizando Firmware\n");
 			write(newsockfd, buffer, sizeof(buffer));
 			sleep(5);
 			updateFirmware(newsockfd);
 		}
-		else if(strcmp(buffer,"start scanning")==0){
+		//Telemetria
+		else if (strcmp(buffer, "get telemetria") == 0)
+		{
+			printf("Obteniendo telemetria\n \n");
+			write(newsockfd, buffer, sizeof(buffer));
+			sleep(2);
+			v = telemetria(newsockfd, infoSat);
+			if (v == 0)
+			{
+				printf("Telemetria completada exitosamente\n");
+			}
+			else
+			{
+				printf("Error durante la telemetria\n");
+			}
+		}
+		//Star Scanning
+		else if (strcmp(buffer, "start scanning") == 0)
+		{
 			printf("Star Scannig\n");
 		}
-		else if(strcmp(buffer,"get telemetria")==0){
-			printf("Obteniendo telemetria\n");
-		}
-		else if(strcmp(buffer,"exit")==0){
-			printf("Apagando Sistema\n");
-			break;
-		}
-		else if(strcmp(buffer,"help")==0){
+		//Help
+		else if (strcmp(buffer, "help") == 0)
+		{
 			getComandosValidos();
 		}
-		else {
+		//Exit
+		else if (strcmp(buffer, "exit") == 0)
+		{
+			printf("Apagando Sistema\n");
+			return -1;
+		}
+		//Comando invalido
+		else
+		{
 			printf("Comando invalido. Ingrese 'help' para mas informacion\n");
 		}
 	}
+	return -1;
 }
 
 /**
@@ -296,21 +331,24 @@ void setComando(int newsockfd, char promp[]){
  * @date 05/04/2019
  * @author Navarro, Matias Alejandro
  */
-void updateFirmware(int newsockfd){
+void updateFirmware(int newsockfd)
+{
 	FILE *firmware;
 	char buffer[TAM], send[TAM];
 	int size, read_size, num_packet = 1, n;
-	//Limpia lo buffers 
-	memset(buffer,0,sizeof(buffer));
-	memset(send,0,sizeof(send));
+	//Limpia lo buffers
+	memset(buffer, 0, sizeof(buffer));
+	memset(send, 0, sizeof(send));
 
-	n = read(newsockfd,buffer,sizeof(buffer));
-	if(n<0){
+	n = read(newsockfd, buffer, sizeof(buffer));
+	if (n < 0)
+	{
 		printf("Error al leer el socket");
-		return ;
+		return;
 	}
 	//Compruebo que el satelite este listo para la actualizacion
-	if(strcmp(buffer,"OK")==0){
+	if (strcmp(buffer, "OK") == 0)
+	{
 		printf("Satelite Listo\n");
 	}
 	else
@@ -318,45 +356,80 @@ void updateFirmware(int newsockfd){
 		printf("Error en el update\n");
 		return;
 	}
-	
+
 	//Abre el binario
 	firmware = fopen("../bin/firmwareUpdate.bin", "r");
-	if (firmware == NULL){	//Comprueba que el archivo no este vacio
+	if (firmware == NULL)
+	{ //Comprueba que el archivo no este vacio
 		printf("Error al cargar el binario\n");
 		return;
 	}
 
-	
-	fseek(firmware,0,SEEK_END);
+	fseek(firmware, 0, SEEK_END);
 	size = ftell(firmware);
-	fseek(firmware,0,SEEK_SET);
+	fseek(firmware, 0, SEEK_SET);
 	// printf("Size %i\n", size);
 
-	n = write(newsockfd,&size,sizeof(size));
-	if(n<0){
+	n = write(newsockfd, &size, sizeof(size));
+	if (n < 0)
+	{
 		printf("Error en el update\n");
 		return;
 	}
 
-	n= read(newsockfd,&buffer, sizeof(buffer));
-	if(n<0){
+	n = read(newsockfd, &buffer, sizeof(buffer));
+	if (n < 0)
+	{
 		printf("Error en el update\n");
 		return;
 	}
 
-	while(!feof(firmware)){
+	while (!feof(firmware))
+	{
 		//Lee del archivo y lo coloca en el buffer
-		read_size = fread(send,1,sizeof(size)-1,firmware);
+		read_size = fread(send, 1, sizeof(size) - 1, firmware);
 
-		//Envio el dato
-		write(newsockfd,send,read_size);
+		//Envia el dato
+		write(newsockfd, send, read_size);
 		num_packet++;
 
-		memset(send,0,sizeof(send));
+		//Limpia el buffer
+		memset(send, 0, sizeof(send));
 	}
-
 
 	fclose(firmware);
 	sleep(2);
 	printf("Actualizacion exitosa\n");
+}
+
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+int telemetria(int newsockfd, char infoSat[])
+{
+	char buffer[TAM];
+	int n;
+	memset(buffer,0,sizeof(buffer));
+
+	n = write(newsockfd,"OK",sizeof("OK"));
+	if(n<0){
+		//Error al conectar con el satelite
+		return -1;
+	}
+
+	n = read(newsockfd,buffer,sizeof(buffer));
+	if(n<0){
+		//Error en la lectura
+		return -1;
+	}
+	
+	strcpy(infoSat,buffer);
+	printf("%s\n",infoSat);
+	fflush(stdout);
+
+	return 0;
 }
