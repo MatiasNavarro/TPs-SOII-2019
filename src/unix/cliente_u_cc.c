@@ -6,8 +6,8 @@
  *  @author Navarro, Matias Alejandro
  */
 
-#include "../../includes/comunes.h"
-#include "../../includes/funciones_cliente.h"
+#include "../../includes/comunes_unix.h"
+#include "../../includes/funciones_cliente_unix.h"
 
 static struct satelite sat;
 

@@ -4,6 +4,9 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <termios.h>
+#include <unistd.h>
+#include "../../includes/funciones_servidor_int.h"
 #define TAM 256
 
 int main( int argc, char *argv[] ) {
@@ -11,6 +14,9 @@ int main( int argc, char *argv[] ) {
 	char buffer[TAM];
 	struct sockaddr_in serv_addr, cli_addr;
 	int n;
+
+	//Cargo usuarios al server
+	setUsers();
 
 	if ( argc < 2 ) {
         	fprintf( stderr, "Uso: %s <puerto>\n", argv[0] );
@@ -87,3 +93,54 @@ int main( int argc, char *argv[] ) {
 	}
 	return 0; 
 } 
+
+/**
+ * @brief Funcion encargada de cargar los distintos usuarios en el servidor.
+ * @date 05/04/2019.
+ * @author Navarro, Matias Alejandro.
+ */
+void setUsers()
+{
+	strcpy(users[0].uname, "Nicolas"), strcpy(users[0].pass, "nn26");
+	strcpy(users[1].uname, "Federico"), strcpy(users[1].pass, "fn25");
+	strcpy(users[2].uname, "Matias"), strcpy(users[2].pass, "mn24");
+	strcpy(users[3].uname, "Ciro"), strcpy(users[3].pass, "cn5");
+	strcpy(users[4].uname, "Bianca"), strcpy(users[4].pass, "bn4");
+	strcpy(users[5].uname, "Geronimo"), strcpy(users[5].pass, "gn0");
+}
+
+// /**
+// * @brief Inicializa el servidor TCP.
+// *
+// * Crea un socket TCP con los argumentos que recibe. Utiliza el puerto 6020.
+// * @args *sockfd
+// * @args clilen
+// * @args *serv_addr
+// * @args *cli_addr
+// */
+// void 
+// start_server(int* sockfd, socklen_t* clilen, struct sockaddr_in* serv_addr,struct sockaddr_in* cli_addr){
+//   int puerto;
+
+//   *sockfd = socket( AF_INET, SOCK_STREAM, 0);
+//   if ( *sockfd < 0 ) { 
+//     perror( " apertura de socket ");
+//     exit( 1 );
+//   }
+
+//   memset( (char *) serv_addr, 0, sizeof(*serv_addr) );
+//   puerto = 6020;
+//   serv_addr->sin_family = AF_INET;
+//   serv_addr->sin_addr.s_addr = INADDR_ANY;
+//   serv_addr->sin_port = htons( puerto );
+
+//   if ( bind(*sockfd, ( struct sockaddr *) serv_addr, sizeof( *serv_addr ) ) < 0 ) {
+//     perror( "ligadura" );
+//     exit( 1 );
+//   }
+
+//         printf( "Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr->sin_port) );
+
+//   listen( *sockfd, 5 );
+//   *clilen = sizeof( *cli_addr );
+// }

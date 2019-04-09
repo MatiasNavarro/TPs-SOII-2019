@@ -15,8 +15,8 @@
  * @return 
  */
 
-#include "../../includes/comunes.h"
-#include "../../includes/funciones_servidor.h"
+#include "../../includes/comunes_unix.h"
+#include "../../includes/funciones_servidor_unix.h"
 
 /**
 * @brief Función principal del Servidor.
