@@ -281,7 +281,7 @@ int setComando(int newsockfd, char promp[])
 		{
 			printf("Actualizando Firmware\n");
 			write(newsockfd, buffer, sizeof(buffer));
-			sleep(5);
+			sleep(2);
 			updateFirmware(newsockfd);
 		}
 		//Telemetria
@@ -304,10 +304,22 @@ int setComando(int newsockfd, char promp[])
 		else if (strcmp(buffer, "start scanning") == 0)
 		{
 			printf("Star Scannig\n");
+			write(newsockfd,buffer,sizeof(buffer));
+			v = startScanning(newsockfd);
+			sleep(2);
+			if(v==0){
+				printf("Escaneo completo\n");
+			}
+			else
+			{
+				printf("Error durante el escaneo\n");
+			}
+			
 		}
 		//Help
 		else if (strcmp(buffer, "help") == 0)
 		{
+			//Imprime los comandos disponibles
 			getComandosValidos();
 		}
 		//Exit
@@ -403,11 +415,14 @@ void updateFirmware(int newsockfd)
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
+ * @brief Funcion que obtiene la informacion de los distintos campos del cliente (satelite),
+ * como son el ID, Update, Version de Firmware y Consumo de CPU.
+ * @param newsockfd: socket por el cual se realiza la comunicacion con el cliente.
+ *        infoStat: buffer donde se va a guardar los datos recibidos desde el satelite.
+ * @return 0 si la comunicaicon no tuvo errores.
+ *        -1 si ocurrio algun error.
  * @date 05/04/2019
- * @return 
+ * @author Navarro, Matias Alejandro
  */
 int telemetria(int newsockfd, char infoSat[])
 {
@@ -430,6 +445,88 @@ int telemetria(int newsockfd, char infoSat[])
 	strcpy(infoSat,buffer);
 	printf("%s\n",infoSat);
 	fflush(stdout);
+
+	return 0;
+}
+
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+int startScanning(int newsockfd){
+
+	FILE *picture;
+	char buffer[TAM];
+	char archivo[32000];
+	int size=0, reciv_size=0 ,read_size, num_packet = 1, packet_size, n;
+	//Limpia lo buffers
+	memset(buffer, 0, sizeof(buffer));
+	memset(archivo, 0, sizeof(archivo));
+
+	n = write(newsockfd, "OK", sizeof("OK"));
+	if (n < 0)
+	{
+		printf("Error al leer el socket");
+		return -1;
+	}
+
+
+	packet_size = read(newsockfd, &size, sizeof(size));
+	if (packet_size < 0)
+	{
+		printf("Error en el update\n");
+		return -1;
+	}
+
+	printf("Tamañano del archivo: %i\n", packet_size);
+	//Verificacion del tamaño
+	write(newsockfd, &size, sizeof(size));
+
+	//Abre el archivo a "escribir" 
+	picture = fopen("./bin/earth.jpg", "w");
+	if (picture == NULL)
+	{
+		printf("Error al abrir el archivo\n");
+		return -1;
+	}
+
+	while (reciv_size < size)
+	{
+		memset(archivo, 0, sizeof(archivo));
+		//Lee el tamaño del paquete
+		packet_size = read(newsockfd, archivo, sizeof(archivo));
+		if (packet_size < 0)
+		{
+			printf("Error en el update");
+			return -1;
+		}
+
+		printf("Paquete %i recibido correctamente\n", num_packet);
+		printf("Tamaño del paquete: %i\n", packet_size);
+
+		read_size = fwrite(archivo, 1, packet_size, picture);
+		if (read_size != packet_size)
+		{
+			printf("Error de escritura\n");
+			printf("Error en el update");
+			return -1;
+		}
+
+		reciv_size += packet_size;
+		num_packet++;
+
+		printf("Tamaño total del binario recibido: %i\n", reciv_size);
+	}
+
+	fclose(picture);
+	printf("......\n");
+	printf("......\n");
+	printf("......\n");
+	printf("......\n");
+	printf("......\n");
 
 	return 0;
 }

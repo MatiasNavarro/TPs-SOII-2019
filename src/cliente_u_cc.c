@@ -102,6 +102,19 @@ int main(int argc, char *argv[])
 				printf("Error durante la telemetria\n");
 			}
 		}
+		else if(strcmp(buffer,"start scanning")==0){
+			//Comienza el escaneo de la tierra
+			printf("Comenzando el escaneo\n");
+			v = startScanning(sockfd);
+			if(v==0){
+				printf("Escaneo realizado con exito\n");
+			}
+			else
+			{
+				printf("Error durante el escaneo\n");
+			}
+			
+		}
 
 		if (terminar)
 		{
@@ -245,11 +258,12 @@ void updateFirmware(int sockfd)
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
+ * @brief Funcion encargada de enviar los campos del satelite al servidor.
+ * Los campos enviados son ID, Update, Version de Firmware y Consumo de CPU.
+ * @param sockfd: socket por el cual se envian los datos al servidor. 
+ * @return
  * @date 05/04/2019
- * @return 
+ * @author Navarro, Matias Alejandro 
  */
 int telemetria(int sockfd)
 {
@@ -294,5 +308,16 @@ int telemetria(int sockfd)
 		return 0;
 	}
 	
+	return -1;
+}
+
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+int startScanning(int sockfd){
 	return -1;
 }
