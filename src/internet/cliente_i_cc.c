@@ -1,12 +1,16 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h> 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <termios.h>
-#include <unistd.h>
-#define TAM 256
+// #include <stdio.h>
+// #include <stdlib.h>
+// #include <sys/types.h>
+// #include <sys/socket.h>
+// #include <netinet/in.h>
+// #include <netdb.h> 
+// #include <unistd.h>
+// #include <sys/ioctl.h>
+// #include <string.h>
+// #include <sys/time.h>
+#include "../../includes/comunes_int.h"
+#include "../../includes/funciones_cliente_int.h"
+//#define TAM 256
 
 int main( int argc, char *argv[] ) {
 	int sockfd, puerto, n;
@@ -20,7 +24,7 @@ int main( int argc, char *argv[] ) {
 		exit( 0 );
 	}
 
-	puerto = atoi( argv[2] );
+	puerto = atoi("6020");
 	sockfd = socket( AF_INET, SOCK_STREAM, 0 );
 	if ( sockfd < 0 ) {
 		perror( "ERROR apertura de socket" );

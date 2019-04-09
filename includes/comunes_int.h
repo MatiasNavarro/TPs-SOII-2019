@@ -7,12 +7,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <sys/types.h> 
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <termios.h>
+#include <netdb.h> 
 #include <unistd.h>
+#include <sys/ioctl.h>
+#include <string.h>
+#include <sys/time.h>
 #define TAM 1024
 
 #define endMsg "/END"
