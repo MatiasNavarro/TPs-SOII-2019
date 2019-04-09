@@ -319,5 +319,73 @@ int telemetria(int sockfd)
  * @return 
  */
 int startScanning(int sockfd){
-	return -1;
+	FILE *picture;
+	char buffer[TAM];
+	char archivo[32000];
+	int size, read_size, num_packet = 1, n;
+	//Limpia lo buffers
+	memset(buffer, 0, sizeof(buffer));
+	memset(archivo, 0, sizeof(archivo));
+
+	n = read(sockfd, buffer, sizeof(buffer));
+	if (n < 0)
+	{
+		printf("Error al leer el socket");
+		return -1;
+	}
+	//Comprueba la sincronizacion servidor-satelite
+	if (strcmp(buffer, "OK") == 0)
+	{
+		printf("Sincronisacion Correcta\n");
+	}
+	else
+	{
+		printf("Error en la sincronizacion\n");
+		return -1;
+	}
+
+	//Abre la foto
+	picture = fopen("../bin/scannig.jpg", "r");
+	if (picture == NULL)
+	{ //Comprueba que el archivo no este vacio
+		printf("Error al cargar el binario\n");
+		return -1;
+	}
+
+	fseek(picture, 0, SEEK_END);
+	size = ftell(picture);
+	fseek(picture, 0, SEEK_SET);
+	printf("Size %i\n", size);
+
+	n = write(sockfd, &size, sizeof(size));
+	if (n < 0)
+	{
+		printf("Error en el update\n");
+		return -1;
+	}
+
+	n = read(sockfd, &buffer, sizeof(buffer));
+	if (n < 0)
+	{
+		printf("Error en el update\n");
+		return -1;
+	}
+
+	while (!feof(picture))
+	{
+		//Lee del archivo y lo coloca en el buffer
+		read_size = fread(archivo, 1, sizeof(archivo) - 1, picture);
+
+		//Envia el dato
+		write(sockfd, archivo, read_size);
+		num_packet++;
+
+		//Limpia el buffer
+		memset(archivo, 0, sizeof(archivo));
+	}
+
+	fclose(picture);
+	sleep(2);
+	printf("Actualizacion exitosa\n");
+	return 0;
 }

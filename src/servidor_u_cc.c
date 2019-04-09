@@ -303,7 +303,7 @@ int setComando(int newsockfd, char promp[])
 		//Star Scanning
 		else if (strcmp(buffer, "start scanning") == 0)
 		{
-			printf("Star Scannig\n");
+			printf("Start Scannig\n");
 			write(newsockfd,buffer,sizeof(buffer));
 			v = startScanning(newsockfd);
 			sleep(2);
@@ -515,7 +515,7 @@ int startScanning(int newsockfd){
 			return -1;
 		}
 
-		reciv_size += packet_size;
+		reciv_size += read_size;
 		num_packet++;
 
 		printf("Tamaño total del binario recibido: %i\n", reciv_size);
