@@ -250,8 +250,8 @@ void getpromp(char promp[])
 int setComando(int newsockfd, char promp[])
 {
 	char buffer[TAM];
-	//char infoSat[TAM];
-	int flag=1;//,v;
+	char infoSat[TAM];
+	int flag=1,v;
 
 	//Bucle que espera los comandos
 	while (flag)
@@ -275,17 +275,17 @@ int setComando(int newsockfd, char promp[])
 		else if (strcmp(buffer, "get telemetria") == 0)
 		{
 			printf("Obteniendo telemetria\n \n");
-			// write(newsockfd, buffer, sizeof(buffer));
-			// sleep(2);
-			// v = telemetria(newsockfd, infoSat);
-			// if (v == 0)
-			// {
-			// 	printf("Telemetria completada exitosamente\n");
-			// }
-			// else
-			// {
-			// 	printf("Error durante la telemetria\n");
-			// }
+			write(newsockfd, buffer, sizeof(buffer));
+			sleep(2);
+			v = telemetria(newsockfd, infoSat);
+			if (v == 0)
+			{
+				printf("Telemetria completada exitosamente\n");
+			}
+			else
+			{
+				printf("Error durante la telemetria\n");
+			}
 		}
 		//Star Scanning
 		else if (strcmp(buffer, "start scanning") == 0)
@@ -416,4 +416,39 @@ void updateFirmware(int newsockfd)
 	fclose(firmware);
 	sleep(2);
 	printf("Actualizacion exitosa\n");
+}
+
+/**
+ * @brief Funcion que obtiene la informacion de los distintos campos del cliente (satelite),
+ * como son el ID, Update, Version de Firmware y Consumo de CPU.
+ * @param newsockfd: socket por el cual se realiza la comunicacion con el cliente.
+ *        infoStat: buffer donde se va a guardar los datos recibidos desde el satelite.
+ * @return 0 si la comunicaicon no tuvo errores.
+ *        -1 si ocurrio algun error.
+ * @date 05/04/2019
+ * @author Navarro, Matias Alejandro
+ */
+int telemetria(int newsockfd, char infoSat[])
+{
+	char buffer[TAM];
+	int n;
+	memset(buffer,0,sizeof(buffer));
+
+	n = write(newsockfd,"OK",sizeof("OK"));
+	if(n<0){
+		//Error al conectar con el satelite
+		return -1;
+	}
+
+	n = read(newsockfd,buffer,sizeof(buffer));
+	if(n<0){
+		//Error en la lectura
+		return -1;
+	}
+	
+	strcpy(infoSat,buffer);
+	printf("%s\n",infoSat);
+	fflush(stdout);
+
+	return 0;
 }
