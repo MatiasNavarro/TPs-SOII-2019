@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 			//Obteniendo telemetria
 			printf("Obteniendo telemetria\n");
 			sleep(2);
-			v = telemetria(sockfd);
+			v = telemetria();
 			if (v == 0)
 			{
 				printf("Telemetria completada exitosamente\n");
@@ -275,14 +275,14 @@ void updateFirmware(int sockfd)
  * @date 05/04/2019
  * @author Navarro, Matias Alejandro 
  */
-int telemetria(int sockfd)
+int telemetria()
 {
-	// socklen_t size;
-	// struct sockaddr_un envio;
-
+	int descriptor_socket, puerto, n;
+	struct sockaddr_in dest_addr;
+	struct hostent *server;
 	char buffer[TAM];
-	int n;
-	memset(buffer, 0, sizeof(buffer));
+	socklen_t tamano_direccion;	
+	memset(buffer,0,sizeof(buffer));
 
 	n = read(sockfd, buffer, sizeof(buffer));
 	if (n < 0)
