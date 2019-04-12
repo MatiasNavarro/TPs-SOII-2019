@@ -1,5 +1,14 @@
-#include "../../includes/comunes_int.h"
-#include "../../includes/funciones_cliente_int.h"
+/** @file cliente_i_cc.c
+ *  @brief Archivo principal del Servidor.
+ *
+ *  Contiene el programa principal que ejecutará el servidor, así como las
+ *  funciones principales y aplicaciones que puede invocar el cliente.
+ *
+ *  @author Matias Navarro
+ */
+
+#include "../../includes/comunes.h"
+#include "../../includes/funciones_cliente.h"
 //#define TAM 256
 
 static struct satelite sat;

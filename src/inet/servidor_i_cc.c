@@ -1,4 +1,4 @@
-/** @file servidor_u_cc.c
+/** @file servidor_i_cc.c
  *  @brief Archivo principal del Servidor.
  *
  *  Contiene el programa principal que ejecutará el servidor, así como las
@@ -7,8 +7,8 @@
  *  @author Matias Navarro
  */
 
-#include "../../includes/comunes_int.h"
-#include "../../includes/funciones_servidor_int.h"
+#include "../../includes/comunes.h"
+#include "../../includes/funciones_servidor.h"
 //#define TAM 256
 
 int main( int argc, char *argv[] ) {

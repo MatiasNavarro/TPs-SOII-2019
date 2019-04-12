@@ -1,4 +1,4 @@
-/** @file comunes_int.h
+/** @file comunes.h
  *  @brief Libreria con mensajes e imports comunes al cliente y al servidor.
  *
  *
@@ -7,17 +7,20 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include <string.h>
 #include <termios.h>
 #include <netdb.h> 
 #include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include <sys/ioctl.h>
-#include <string.h>
 #include <sys/time.h>
+#include <netinet/in.h>
 
-#define TAM 512
+#include <sys/un.h>
+#define TAM 1024
+
 #define endMsg "/END"
 #define disconnectMsg "/BYE"
 #define start_UDP_Msg "/START"
