@@ -1,11 +1,12 @@
-// #include <stdio.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include <sys/types.h> 
-// #include <sys/socket.h>
-// #include <netinet/in.h>
-// #include <termios.h>
-// #include <unistd.h>
+/** @file servidor_u_cc.c
+ *  @brief Archivo principal del Servidor.
+ *
+ *  Contiene el programa principal que ejecutará el servidor, así como las
+ *  funciones principales y aplicaciones que puede invocar el cliente.
+ *
+ *  @author Matias Navarro
+ */
+
 #include "../../includes/comunes_int.h"
 #include "../../includes/funciones_servidor_int.h"
 //#define TAM 256
@@ -449,6 +450,88 @@ int telemetria(int newsockfd, char infoSat[])
 	strcpy(infoSat,buffer);
 	printf("%s\n",infoSat);
 	fflush(stdout);
+
+	return 0;
+}
+
+/**
+ * @brief Funcion 
+ * @author Navarro, Matias Alejandro
+ * @param 
+ * @date 05/04/2019
+ * @return 
+ */
+int startScanning(int newsockfd){
+
+	FILE *picture;
+	char buffer[TAM];
+	char archivo[32000];
+	int size=0, reciv_size=0 ,read_size, num_packet = 1, packet_size, n;
+	//Limpia lo buffers
+	memset(buffer, 0, sizeof(buffer));
+	memset(archivo, 0, sizeof(archivo));
+
+	n = write(newsockfd, "OK", sizeof("OK"));
+	if (n < 0)
+	{
+		printf("Error al leer el socket");
+		return -1;
+	}
+
+
+	packet_size = read(newsockfd, &size, sizeof(size));
+	if (packet_size < 0)
+	{
+		printf("Error en el update\n");
+		return -1;
+	}
+
+	printf("Tamañano del archivo: %i\n", packet_size);
+	//Verificacion del tamaño
+	write(newsockfd, &size, sizeof(size));
+
+	//Abre el archivo a "escribir" 
+	picture = fopen("./earth.jpg", "w");
+	if (picture == NULL)
+	{
+		printf("Error al abrir el archivo\n");
+		return -1;
+	}
+
+	while (reciv_size < size)
+	{
+		memset(archivo, 0, sizeof(archivo));
+		//Lee el tamaño del paquete
+		packet_size = read(newsockfd, archivo, sizeof(archivo));
+		if (packet_size < 0)
+		{
+			printf("Error en el update");
+			return -1;
+		}
+
+		printf("Paquete %i recibido correctamente\n", num_packet);
+		printf("Tamaño del paquete: %i\n", packet_size);
+
+		read_size = fwrite(archivo, 1, packet_size, picture);
+		if (read_size != packet_size)
+		{
+			printf("Error de escritura\n");
+			printf("Error en el update");
+			return -1;
+		}
+
+		reciv_size += read_size;
+		num_packet++;
+
+		printf("Tamaño total del binario recibido: %i\n", reciv_size);
+	}
+
+	fclose(picture);
+	printf("......\n");
+	printf("......\n");
+	printf("......\n");
+	printf("......\n");
+	printf("......\n");
 
 	return 0;
 }

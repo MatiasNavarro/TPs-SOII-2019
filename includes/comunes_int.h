@@ -16,8 +16,8 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include <sys/time.h>
-#define TAM 1024
 
+#define TAM 512
 #define endMsg "/END"
 #define disconnectMsg "/BYE"
 #define start_UDP_Msg "/START"

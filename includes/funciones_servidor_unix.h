@@ -28,6 +28,6 @@ int userLog(char[]); 			//Autenticacion de ingreso
 void getpromp(char[]); 			//Generacion de promp
 void updateFirmware(int);		//Actualizacion de Firmware
 int startScanning(int);			//Inicia el escaneo de toda la tierra
-int telemetria(int,char[]);			//Envia informacion a la estacion terrena
+int telemetria(char[]);			//Envia informacion a la estacion terrena
 int setComando(int,char[]);	//Ingreso de comandos que luego son enviados al satelite
 void getComandosValidos(void);	//Imprime los comandos validos

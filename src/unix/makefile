@@ -7,4 +7,4 @@ cliente : cliente_u_cc.c
 	gcc -g -Wall -Werror -pedantic -o cliente_u cliente_u_cc.c 
 
 clean : 
-	rm servidor_u cliente_u earth.jpg\
+	rm servidor_u cliente_u earth.jpg socket\

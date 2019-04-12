@@ -289,8 +289,7 @@ int setComando(int newsockfd, char promp[])
 		{
 			printf("Obteniendo telemetria\n \n");
 			write(newsockfd, buffer, sizeof(buffer));
-			sleep(2);
-			v = telemetria(newsockfd, infoSat);
+			v = telemetria(infoSat);
 			if (v == 0)
 			{
 				printf("Telemetria completada exitosamente\n");
@@ -424,19 +423,35 @@ void updateFirmware(int newsockfd)
  * @date 05/04/2019
  * @author Navarro, Matias Alejandro
  */
-int telemetria(int newsockfd, char infoSat[])
+int telemetria(char infoSat[])
 {
-	char buffer[TAM];
-	int n;
+	int socket_server, n;
+	struct sockaddr_un struct_servidor;
+	socklen_t tamano_direccion;
+	char buffer[ TAM ];
 	memset(buffer,0,sizeof(buffer));
-
-	n = write(newsockfd,"OK",sizeof("OK"));
-	if(n<0){
-		//Error al conectar con el satelite
+	
+	if((socket_server = socket(AF_UNIX,SOCK_DGRAM,0))<0)
+	{
+		perror("ERROR en apertura de socket");
 		return -1;
 	}
 
-	n = read(newsockfd,buffer,sizeof(buffer));
+	unlink ("./socket");
+	memset(&struct_servidor,0,sizeof(struct_servidor));
+	struct_servidor.sun_family = AF_UNIX;
+	strncpy(struct_servidor.sun_path,"./socket",sizeof(struct_servidor.sun_path));
+
+	if((bind(socket_server, (struct sockaddr *) &struct_servidor, SUN_LEN(&struct_servidor)))<0)
+	{
+		perror("ERROR en binding");
+		return -1;
+	}
+
+	printf("Socket disponible: %s\n", struct_servidor.sun_path);
+	tamano_direccion = sizeof(tamano_direccion);
+
+	n = recvfrom(socket_server,(void *)buffer, sizeof(buffer), 0 ,(struct sockaddr *)&socket_server, &tamano_direccion);
 	if(n<0){
 		//Error en la lectura
 		return -1;

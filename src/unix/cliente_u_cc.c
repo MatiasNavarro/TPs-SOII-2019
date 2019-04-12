@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 			//Obteniendo telemetria
 			printf("Obteniendo telemetria\n");
 			sleep(2);
-			v = telemetria(sockfd);
+			v = telemetria();
 			if(v==0)
 			{
 				printf("Telemetria completada exitosamente\n");
@@ -265,29 +265,27 @@ void updateFirmware(int sockfd)
  * @date 05/04/2019
  * @author Navarro, Matias Alejandro 
  */
-int telemetria(int sockfd)
-{
-	// socklen_t size;
-	// struct sockaddr_un envio;
-	
+int telemetria()
+{	
+	int descriptor_socket, n;
+	struct sockaddr_un struct_cliente;
+	socklen_t tamano_direccion;
 	char buffer[TAM];
-	int n;
 	memset(buffer,0,sizeof(buffer));
 
-	n=read(sockfd,buffer,sizeof(buffer));
-	if(n<0){
-		printf("Error en la escritura\n");
-	}
-	
-	if(strcmp(buffer,"OK")==0)
+	/* Creacion de socket */
+	if(( descriptor_socket = socket(AF_UNIX, SOCK_DGRAM, 0) ) < 0 ) 
 	{
-		printf("Sincronizacion correcta\n");
-	}
-	else{
+		perror("socket" );
 		return -1;
 	}
-	memset(buffer,0,sizeof(buffer));
-	
+
+	/* Inicialización y establecimiento de la estructura del cliente */
+	memset(&struct_cliente, 0, sizeof( struct_cliente ));
+	struct_cliente.sun_family = AF_UNIX;
+	strncpy(struct_cliente.sun_path,"./socket", sizeof(struct_cliente.sun_path));
+	tamano_direccion = sizeof(tamano_direccion);
+
 	strcpy(buffer,"ID: ");
 	strcat(buffer,sat.ID);
 	strcat(buffer,"\nUpdate: ");
@@ -298,13 +296,16 @@ int telemetria(int sockfd)
 	strcat(buffer,sat.consumoCPU);
 	strcat(buffer,"\n");
 
-	// printf("%s\n",buffer);
-	n=write(sockfd,buffer,sizeof(buffer));
+	printf("%s\n",buffer);
+	n = sendto(descriptor_socket,buffer,TAM,0, (struct sockaddr *)&struct_cliente, sizeof(struct_cliente));
+	printf("%i \n",n);
 	if(n<0){
+		printf("ACK -1\n");
 		return -1;
 	}
 	else
 	{
+		printf("ACK 0\n");
 		return 0;
 	}
 	
