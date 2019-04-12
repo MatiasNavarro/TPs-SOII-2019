@@ -11,7 +11,8 @@
 #include "../../includes/funciones_servidor.h"
 //#define TAM 256
 
-int main( int argc, char *argv[] ) {
+int main(int argc, char *argv[])
+{
 	int sockfd, newsockfd, pid, conect;
 	socklen_t clilen;
 	char buffer[TAM], promp[TAM];
@@ -20,17 +21,16 @@ int main( int argc, char *argv[] ) {
 
 	//Cargo usuarios al server
 	setUsers();
-	 /*!< Inicio el proceso servidor, levanto el socket en el puerto 6020 (TCP) */
-	start_server(&sockfd,&clilen,&serv_addr,&cli_addr);
-
+	/*!< Inicio el proceso servidor, levanto el socket en el puerto 6020 (TCP) */
+	start_server(&sockfd, &clilen, &serv_addr, &cli_addr);
 
 	// if ( argc < 2 ) {
-    //     	fprintf( stderr, "Uso: %s <puerto>\n", argv[0] );
+	//     	fprintf( stderr, "Uso: %s <puerto>\n", argv[0] );
 	// 	exit( 1 );
 	// }
 
 	// sockfd = socket( AF_INET, SOCK_STREAM, 0);
-	// if ( sockfd < 0 ) { 
+	// if ( sockfd < 0 ) {
 	// 	perror( " apertura de socket ");
 	// 	exit( 1 );
 	// }
@@ -46,27 +46,31 @@ int main( int argc, char *argv[] ) {
 	// 	exit( 1 );
 	// }
 
-    //     printf( "Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr.sin_port) );
+	//     printf( "Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr.sin_port) );
 
 	// listen( sockfd, 5 );
 	// clilen = sizeof(cli_addr);
 
-	while( 1 ) {
-		newsockfd = accept( sockfd, (struct sockaddr *) &cli_addr, &clilen );
-		if ( newsockfd < 0 ) {
-			perror( "accept" );
-			exit( 1 );
+	while (1)
+	{
+		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
+		if (newsockfd < 0)
+		{
+			perror("accept");
+			exit(1);
 		}
 
-		pid = fork(); 
-		if ( pid < 0 ) {
-			perror( "fork" );
-			exit( 1 );
+		pid = fork();
+		if (pid < 0)
+		{
+			perror("fork");
+			exit(1);
 		}
 
-		if ( pid == 0 ) {  // Proceso hijo
-			close( sockfd );
-		
+		if (pid == 0)
+		{ // Proceso hijo
+			close(sockfd);
+
 			//Comprobacion de usuarios
 			conect = userLog(promp);
 			if (conect == 1)
@@ -81,18 +85,21 @@ int main( int argc, char *argv[] ) {
 				exit(1);
 			}
 
-			while ( 1 ) {
-				memset( buffer, 0, TAM );
+			while (1)
+			{
+				memset(buffer, 0, TAM);
 				//Ingresa uno de los comando posibles para mandar al satelite
-				if(conect==1){
+				if (conect == 1)
+				{
 					n = setComando(newsockfd, promp);
-					if(n==-1){
-						conect=0;
-						write(newsockfd,"Conexion Cerrada",sizeof("Conexion Cerrada"));
+					if (n == -1)
+					{
+						conect = 0;
+						write(newsockfd, "Conexion Cerrada", sizeof("Conexion Cerrada"));
 						close(newsockfd);
 					}
 				}
-						
+
 				// n = read( newsockfd, buffer, TAM-1 );
 				// if ( n < 0 ) {
 				// 	perror( "lectura de socket" );
@@ -109,19 +116,21 @@ int main( int argc, char *argv[] ) {
 				// }
 				// // Verificación de si hay que terminar
 				// buffer[strlen(buffer)-1] = '\0';
-				if( !strcmp( "fin", buffer ) ) {
-					printf( "PROCESO %d. Como recibí 'fin', termino la ejecución.\n\n", getpid() );
+				if (!strcmp("fin", buffer))
+				{
+					printf("PROCESO %d. Como recibí 'fin', termino la ejecución.\n\n", getpid());
 					exit(0);
 				}
 			}
 		}
-		else {
-			printf( "SERVIDOR: Nuevo cliente, que atiende el proceso hijo: %d\n", pid );
-			close( newsockfd );
+		else
+		{
+			printf("SERVIDOR: Nuevo cliente, que atiende el proceso hijo: %d\n", pid);
+			close(newsockfd);
 		}
 	}
-	return 0; 
-} 
+	return 0;
+}
 
 /**
  * @brief Funcion encargada de cargar los distintos usuarios en el servidor.
@@ -147,31 +156,33 @@ void setUsers()
 * @args *serv_addr
 * @args *cli_addr
 */
-void 
-start_server(int* sockfd, socklen_t* clilen, struct sockaddr_in* serv_addr,struct sockaddr_in* cli_addr){
-  int puerto;
+void start_server(int *sockfd, socklen_t *clilen, struct sockaddr_in *serv_addr, struct sockaddr_in *cli_addr)
+{
+	int puerto;
 
-  *sockfd = socket( AF_INET, SOCK_STREAM, 0);
-  if ( *sockfd < 0 ) { 
-    perror( " apertura de socket ");
-    exit( 1 );
-  }
+	*sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (*sockfd < 0)
+	{
+		perror(" apertura de socket ");
+		exit(1);
+	}
 
-  memset( (char *) serv_addr, 0, sizeof(*serv_addr) );
-  puerto = 6020;
-  serv_addr->sin_family = AF_INET;
-  serv_addr->sin_addr.s_addr = INADDR_ANY;
-  serv_addr->sin_port = htons( puerto );
+	memset((char *)serv_addr, 0, sizeof(*serv_addr));
+	puerto = 6020;
+	serv_addr->sin_family = AF_INET;
+	serv_addr->sin_addr.s_addr = INADDR_ANY;
+	serv_addr->sin_port = htons(puerto);
 
-  if ( bind(*sockfd, ( struct sockaddr *) serv_addr, sizeof( *serv_addr ) ) < 0 ) {
-    perror( "ligadura" );
-    exit( 1 );
-  }
+	if (bind(*sockfd, (struct sockaddr *)serv_addr, sizeof(*serv_addr)) < 0)
+	{
+		perror("ligadura");
+		exit(1);
+	}
 
-        printf( "Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr->sin_port) );
+	printf("Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr->sin_port));
 
-  listen( *sockfd, 5 );
-  *clilen = sizeof( *cli_addr );
+	listen(*sockfd, 5);
+	*clilen = sizeof(*cli_addr);
 }
 
 /**
@@ -252,7 +263,7 @@ int setComando(int newsockfd, char promp[])
 {
 	char buffer[TAM];
 	char infoSat[TAM];
-	int flag=1,v;
+	int flag = 1, v;
 
 	//Bucle que espera los comandos
 	while (flag)
@@ -292,17 +303,16 @@ int setComando(int newsockfd, char promp[])
 		else if (strcmp(buffer, "start scanning") == 0)
 		{
 			printf("Start Scannig\n");
-			// write(newsockfd,buffer,sizeof(buffer));
-			// v = startScanning(newsockfd);
-			// sleep(2);
-			// if(v==0){
-			// 	printf("Escaneo completo\n");
-			// }
-			// else
-			// {
-			// 	printf("Error durante el escaneo\n");
-			// }
-			
+			write(newsockfd,buffer,sizeof(buffer));
+			v = startScanning(newsockfd);
+			sleep(2);
+			if(v==0){
+				printf("Escaneo completo\n");
+			}
+			else
+			{
+				printf("Error durante el escaneo\n");
+			}
 		}
 		//Help
 		else if (strcmp(buffer, "help") == 0)
@@ -431,42 +441,46 @@ void updateFirmware(int newsockfd)
  */
 int telemetria(char infoSat[])
 {
-	int socket_server,puerto, n;
+	int socket_server, puerto, n;
 	struct sockaddr_in serv_addr;
 	socklen_t tamano_direccion;
-	char buffer[ TAM ];
-	memset(buffer,0,sizeof(buffer));
+	char buffer[TAM];
+	memset(buffer, 0, sizeof(buffer));
 
-	if((socket_server = socket(AF_INET,SOCK_DGRAM,0))<0)
+	/* Creacion del socket */
+	if ((socket_server = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
 	{
 		perror("ERROR en apertura de socket");
 		return -1;
 	}
 
-	memset( &serv_addr, 0, sizeof(serv_addr) );
-	puerto = atoi( "6025" );
+	memset(&serv_addr, 0, sizeof(serv_addr));
+	puerto = atoi("6025");
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
-	serv_addr.sin_port = htons( puerto );
-	memset( &(serv_addr.sin_zero), '\0', 8);
+	serv_addr.sin_port = htons(puerto);
+	memset(&(serv_addr.sin_zero), '\0', 8);
 
-	if( bind(socket_server, (struct sockaddr *) &serv_addr, sizeof(serv_addr) ) < 0 ) {
+	if (bind(socket_server, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+	{
 		perror("ERROR en binding");
 		return -1;
 	}
 
-	printf( "Socket disponible: %d\n", ntohs(serv_addr.sin_port) );
-	tamano_direccion = sizeof( struct sockaddr );
+	printf("Socket disponible: %d\n", ntohs(serv_addr.sin_port));
+	tamano_direccion = sizeof(struct sockaddr);
 
-	n=recvfrom(socket_server, buffer, TAM-1, 0, (struct sockaddr *)&serv_addr, &tamano_direccion );
-	if(n<0){
+	n = recvfrom(socket_server, buffer, TAM - 1, 0, (struct sockaddr *)&serv_addr, &tamano_direccion);
+	if (n < 0)
+	{
 		//Error en la lectura
 		return -1;
 	}
 
-	strcpy(infoSat,buffer);
-	printf("%s\n",infoSat);
+	strcpy(infoSat, buffer);
+	printf("%s\n", infoSat);
 	fflush(stdout);
+	close(socket_server);
 
 	return 0;
 }
@@ -478,12 +492,13 @@ int telemetria(char infoSat[])
  * @date 05/04/2019
  * @return 
  */
-int startScanning(int newsockfd){
+int startScanning(int newsockfd)
+{
 
 	FILE *picture;
 	char buffer[TAM];
 	char archivo[32000];
-	int size=0, reciv_size=0 ,read_size, num_packet = 1, packet_size, n;
+	int size = 0, reciv_size = 0, read_size, num_packet = 1, packet_size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(archivo, 0, sizeof(archivo));
@@ -494,7 +509,6 @@ int startScanning(int newsockfd){
 		printf("Error al leer el socket");
 		return -1;
 	}
-
 
 	packet_size = read(newsockfd, &size, sizeof(size));
 	if (packet_size < 0)
@@ -507,7 +521,7 @@ int startScanning(int newsockfd){
 	//Verificacion del tamaño
 	write(newsockfd, &size, sizeof(size));
 
-	//Abre el archivo a "escribir" 
+	//Abre el archivo a "escribir"
 	picture = fopen("./earth.jpg", "w");
 	if (picture == NULL)
 	{

@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 			//Obteniendo telemetria
 			printf("Obteniendo telemetria\n");
 			sleep(2);
-			v = telemetria();
+			v = telemetria_inet(argv);
 			if (v == 0)
 			{
 				printf("Telemetria completada exitosamente\n");
@@ -275,8 +275,9 @@ void updateFirmware(int sockfd)
  * @date 05/04/2019
  * @author Navarro, Matias Alejandro 
  */
-int telemetria()
+int telemetria_inet(char *argv[])
 {
+	printf("Entre en telemetria\n");
 	int sockfd, puerto, n;
 	struct sockaddr_in dest_addr;
 	struct hostent *server;
@@ -284,20 +285,21 @@ int telemetria()
 	socklen_t tamano_direccion;	
 	memset(buffer,0,sizeof(buffer));
 
-	server = gethostbyname("192.168.1.22");
+	server = gethostbyname(argv[1]);
 	if ( server == NULL ) 
 	{
 		fprintf( stderr, "ERROR, no existe el host\n");
 		return -1;
 	}
 
-	puerto = atoi("6025");
 	sockfd = socket( AF_INET, SOCK_DGRAM, 0 );
 	if (sockfd < 0) {
 		perror( "apertura de socket" );
 		return -1;
 	}
+	printf("ACK Socket creado \n");
 
+	puerto = atoi("6025");
 	dest_addr.sin_family = AF_INET;
 	dest_addr.sin_port = htons(puerto);
 	dest_addr.sin_addr = *( (struct in_addr *)server->h_addr );
@@ -314,8 +316,8 @@ int telemetria()
 	strcat(buffer, sat.consumoCPU);
 	strcat(buffer, "\n");
 
-	// printf("%s\n",buffer);
-	n = recvfrom( sockfd, (void *)buffer, TAM, 0, (struct sockaddr *)&dest_addr, &tamano_direccion );
+	printf("%s\n",buffer);
+	n = sendto( sockfd, (void *)buffer, TAM, 0, (struct sockaddr *)&dest_addr, tamano_direccion );
 	if (n < 0)
 	{
 		//Error de lectura
