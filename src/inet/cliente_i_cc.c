@@ -277,28 +277,32 @@ void updateFirmware(int sockfd)
  */
 int telemetria()
 {
-	int descriptor_socket, puerto, n;
+	int sockfd, puerto, n;
 	struct sockaddr_in dest_addr;
 	struct hostent *server;
 	char buffer[TAM];
 	socklen_t tamano_direccion;	
 	memset(buffer,0,sizeof(buffer));
 
-	n = read(sockfd, buffer, sizeof(buffer));
-	if (n < 0)
+	server = gethostbyname("192.168.1.22");
+	if ( server == NULL ) 
 	{
-		printf("Error en la escritura\n");
-	}
-
-	if (strcmp(buffer, "OK") == 0)
-	{
-		printf("Sincronizacion correcta\n");
-	}
-	else
-	{
+		fprintf( stderr, "ERROR, no existe el host\n");
 		return -1;
 	}
-	memset(buffer, 0, sizeof(buffer));
+
+	puerto = atoi("6025");
+	sockfd = socket( AF_INET, SOCK_DGRAM, 0 );
+	if (sockfd < 0) {
+		perror( "apertura de socket" );
+		return -1;
+	}
+
+	dest_addr.sin_family = AF_INET;
+	dest_addr.sin_port = htons(puerto);
+	dest_addr.sin_addr = *( (struct in_addr *)server->h_addr );
+	memset( &(dest_addr.sin_zero), '\0', 8 );
+	tamano_direccion = sizeof(dest_addr);
 
 	strcpy(buffer, "ID: ");
 	strcat(buffer, sat.ID);
@@ -311,13 +315,15 @@ int telemetria()
 	strcat(buffer, "\n");
 
 	// printf("%s\n",buffer);
-	n = write(sockfd, buffer, sizeof(buffer));
+	n = recvfrom( sockfd, (void *)buffer, TAM, 0, (struct sockaddr *)&dest_addr, &tamano_direccion );
 	if (n < 0)
 	{
+		//Error de lectura
 		return -1;
 	}
 	else
 	{
+		//Los datos se enviaron correctamente
 		return 0;
 	}
 
