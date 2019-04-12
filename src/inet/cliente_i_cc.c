@@ -58,24 +58,6 @@ int main(int argc, char *argv[])
 
 	while (1)
 	{
-		// printf( "Ingrese el mensaje a transmitir: " );
-		// memset( buffer, '\0', TAM );
-		// fgets( buffer, TAM-1, stdin );
-
-		n = write(sockfd, buffer, strlen(buffer));
-		if (n < 0)
-		{
-			perror("escritura de socket");
-			exit(1);
-		}
-
-		// Verificando si se escribió: fin
-		buffer[strlen(buffer) - 1] = '\0';
-		if (!strcmp("fin", buffer))
-		{
-			terminar = 1;
-		}
-
 		memset(buffer, '\0', TAM);
 		n = read(sockfd, buffer, TAM);
 		if (n < 0)
@@ -89,6 +71,7 @@ int main(int argc, char *argv[])
 		if (strcmp(buffer, "update firmware") == 0)
 		{
 			//Actualiza la version del firmware
+			printf("Update firmware ACK 00\n");
 			updateFirmware(sockfd);
 			//Obtiene informacion del satelite
 			setInfo();

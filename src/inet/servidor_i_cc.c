@@ -380,7 +380,7 @@ void updateFirmware(int newsockfd)
 	}
 	else
 	{
-		printf("Error en el update\n");
+		printf("Error en el update OK\n");
 		return;
 	}
 
@@ -400,14 +400,14 @@ void updateFirmware(int newsockfd)
 	n = write(newsockfd, &size, sizeof(size));
 	if (n < 0)
 	{
-		printf("Error en el update\n");
+		printf("Error en el update write\n");
 		return;
 	}
 
 	n = read(newsockfd, &buffer, sizeof(buffer));
 	if (n < 0)
 	{
-		printf("Error en el update\n");
+		printf("Error en el update read\n");
 		return;
 	}
 
