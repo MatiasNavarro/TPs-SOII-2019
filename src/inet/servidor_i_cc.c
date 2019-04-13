@@ -366,7 +366,7 @@ void updateFirmware(int newsockfd)
 {
 	FILE *firmware;
 	char buffer[TAM], send[TAM];
-	int size, num_packet = 1, n;
+	int size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(send, 0, sizeof(send));
@@ -390,12 +390,6 @@ void updateFirmware(int newsockfd)
 
 	//Abre el binario
 	firmware = fopen("../../bin/firmwareUpdate.bin", "r");
-	// if (firmware == NULL)
-	// { //Comprueba que el archivo no este vacio
-	// 	printf("Error al cargar el binario :c\n");
-	// 	fclose(firmware);
-	// 	return;
-	// }
 
 	fseek(firmware, 0, SEEK_END);
 	size = ftell(firmware);
@@ -426,7 +420,7 @@ void updateFirmware(int newsockfd)
 
 		//Envia el dato
 		write(newsockfd, send, read_size);
-		num_packet++;
+		//num_packet++;
 
 		//Limpia el buffer
 		memset(send, 0, sizeof(send));
@@ -531,12 +525,6 @@ int startScanning(int newsockfd)
 
 	//Abre el archivo a "escribir"
 	picture = fopen("./earth.jpg", "w");
-	// if (picture == NULL)
-	// {
-	// 	printf("Error al abrir el archivo\n");
-	// 	fclose(picture);
-	// 	return -1;
-	// }
 
 	while (reciv_size < size)
 	{
