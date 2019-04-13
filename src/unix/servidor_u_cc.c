@@ -26,7 +26,7 @@
 */
 int main(int argc, char *argv[])
 {
-	int sockfd, newsockfd, servlen, n, pid;
+	int sockfd, newsockfd, servlen, flag=0, pid;
 	unsigned int clilen;
 	struct sockaddr_un cli_addr, serv_addr;
 	char buffer[TAM];
@@ -69,12 +69,30 @@ int main(int argc, char *argv[])
 
 	while (1)
 	{
-		int conect;
+		int conect, n;
 		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 		if (newsockfd < 0)
 		{
 			perror("accept");
 			exit(1);
+		}
+
+		//Comprobacion de usuarios
+		while(flag==0){
+			conect = userLog(promp);
+			if (conect == 1)
+			{
+				printf("Entre\n");
+				printf("Autenticacion CORRECTA\n");
+				getpromp(promp);
+				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
+				flag = 1;
+			}
+			else
+			{
+				printf("Error de autenticacion \n");
+				exit(1);
+			}
 		}
 
 		pid = fork();
@@ -88,20 +106,6 @@ int main(int argc, char *argv[])
 		{ // proceso hijo
 			close(sockfd);
 
-			//Comprobacion de usuarios
-			conect = userLog(promp);
-			if (conect == 1)
-			{
-				printf("Autenticacion CORRECTA\n");
-				getpromp(promp);
-				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
-			}
-			else
-			{
-				printf("Error de autenticacion \n");
-				exit(1);
-			}
-
 			while (1)
 			{
 				//Ingresa uno de los comando posibles para mandar al satelite
@@ -113,30 +117,7 @@ int main(int argc, char *argv[])
 						close(newsockfd);
 					}
 				}
-							
-
 				memset(buffer, 0, TAM);
-				// n = read(newsockfd, buffer, TAM - 1);
-				// if (n < 0)
-				// {
-				// 	perror("lectura de socket");
-				// 	exit(1);
-				// }
-
-				// printf("%s ", promp);
-				// printf("PROCESO: %d. ", getpid());
-				// printf("Recibí: %s \n", buffer);
-				// fflush(stdout);
-
-				// n = write(newsockfd, "Obtuve su mensaje", 18);
-				// if (n < 0)
-				// {
-				// 	perror("escritura en socket");
-				// 	exit(1);
-				// }
-
-				// Verificación de si hay que terminar
-				//buffer[strlen(buffer) - 1] = '\0';
 				if (strcmp("fin", buffer) == 0)
 				{
 					printf("PROCESO %d. Como recibí 'fin', termino la ejecución.\n\n", getpid());
@@ -189,15 +170,17 @@ int userLog(char promp[])
 	while (error < 3)
 	{
 		printf("Usuario: ");
+		fflush(stdout);
 		//Ingreso del usuario
 		fgets(usuario, 20, stdin);
-		fflush(stdout);
+		fflush(stdin);
 		strtok(usuario, "\n");
 
 		printf("Password: ");
+		fflush(stdout);
 		//Ingreso de la contraseña
 		fgets(password, 20, stdin);
-		fflush(stdout);
+		fflush(stdin);
 		strtok(password, "\n");
 
 		//Comprobacion de Usuario y Contraseña
@@ -209,7 +192,6 @@ int userLog(char promp[])
 				{
 					strcpy(promp, users[i].uname);
 					return 1;
-					break;
 				}
 			}
 		}

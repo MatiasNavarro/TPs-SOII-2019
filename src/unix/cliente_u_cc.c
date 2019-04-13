@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	//Iniciando satelite
+	printf("\nIniciando el satelite...\n");
 	//Obtengo la informacion del satelite
 	setInfo();
 	//Imprimo la informacion del satelite
@@ -50,9 +52,6 @@ int main(int argc, char *argv[])
 	{
 
 		memset(buffer, '\0', TAM);
-		// printf( "Ingrese el mensaje a enviar: " );
-		// fgets( buffer, TAM-1, stdin );
-		// strtok(buffer, "\n");
 
 		n = write(sockfd, buffer, strlen(buffer));
 		if (n < 0)
@@ -81,7 +80,7 @@ int main(int argc, char *argv[])
 		if (strcmp(buffer, "update firmware") == 0)
 		{
 			//Actualiza la version del firmware
-			updateFirmware(sockfd);
+			updateFirmware(sockfd,argv);
 			//Obtiene informacion del satelite
 			setInfo();
 			//Imprime informacion del satelite
@@ -190,7 +189,7 @@ void getInfo()
  * @date 05/04/2019.
  * @author Navarro, Matias Alejandro.
  */
-void updateFirmware(int sockfd)
+void updateFirmware(int sockfd, char *argv[])
 {
 	FILE *firmware;
 	char buffer[TAM];
@@ -255,6 +254,10 @@ void updateFirmware(int sockfd)
 
 	fclose(firmware);
 	printf("Actualizando firmware ... \n");
+	printf("Reiniciando ...\n");
+	fflush(stdout);
+	sleep(3);
+	execvp(argv[0],argv);
 }
 
 /**
