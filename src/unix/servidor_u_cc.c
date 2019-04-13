@@ -257,6 +257,8 @@ int setComando(int newsockfd, char promp[])
 			write(newsockfd, buffer, sizeof(buffer));
 			sleep(2);
 			updateFirmware(newsockfd);
+			close(newsockfd);
+			exit(0);
 		}
 		//Telemetria
 		else if (strcmp(buffer, "get telemetria") == 0)

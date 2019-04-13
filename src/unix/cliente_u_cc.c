@@ -254,6 +254,7 @@ void updateFirmware(int sockfd, char *argv[])
 	printf("Reiniciando ...\n");
 	fflush(stdout);
 	sleep(3);
+	close(sockfd);
 	execvp(argv[0],argv);
 }
 

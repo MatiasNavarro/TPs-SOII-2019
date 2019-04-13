@@ -211,13 +211,6 @@ void updateFirmware(int sockfd, char *argv[])
 
 	//Abre el archivo donde escribira los datos de la actualizacion
 	firmware = fopen("../../bin/firmwareCliente.bin", "w");
-	// if (firmware == NULL)
-	// {
-	// 	printf("Error al abrir el archivo\n");
-	// 	printf("Error en el update");
-	// 	fclose(firmware);
-	// 	return;
-	// }
 
 	while (reciv_size < size)
 	{
@@ -253,6 +246,7 @@ void updateFirmware(int sockfd, char *argv[])
 	fclose(firmware);
 	printf("Actualizando firmware ... \n");
 	sleep(3);
+	close(sockfd);
 	execvp(argv[0],argv);
 }
 

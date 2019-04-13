@@ -1,7 +1,7 @@
 /** @file servidor_i_cc.c
  *  @brief Archivo principal del Servidor.
  *
- *  Contiene el programa principal que ejecutará el servidor, así como las
+ *  Contiene el programa principal que ejecutara el servidor, asi como las
  *  funciones principales y aplicaciones que puede invocar el cliente.
  *
  *  @author Matias Navarro
@@ -13,7 +13,7 @@
 
 int main(int argc, char *argv[])
 {
-	int sockfd,puerto, flag = 0;
+	int sockfd, flag = 0;
 	socklen_t clilen;
 	char buffer[TAM], promp[TAM];
 	struct sockaddr_in serv_addr, cli_addr;
@@ -23,33 +23,6 @@ int main(int argc, char *argv[])
 	setUsers();
 	/*!< Inicio el proceso servidor, levanto el socket en el puerto 6020 (TCP) */
 	start_server(&sockfd, &clilen, &serv_addr, &cli_addr);
-
-	if ( argc < 2 ) {
-	    	fprintf( stderr, "Uso: %s <puerto>\n", argv[0] );
-		exit( 1 );
-	}
-
-	sockfd = socket( AF_INET, SOCK_STREAM, 0);
-	if ( sockfd < 0 ) {
-		perror( " apertura de socket ");
-		exit( 1 );
-	}
-
-	memset( (char *) &serv_addr, 0, sizeof(serv_addr) );
-	puerto = atoi( "6020" );
-	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_addr.s_addr = INADDR_ANY;
-	serv_addr.sin_port = htons( puerto );
-
-	if ( bind(sockfd, ( struct sockaddr *) &serv_addr, sizeof( serv_addr ) ) < 0 ) {
-		perror( "ligadura" );
-		exit( 1 );
-	}
-
-	    printf( "Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr.sin_port) );
-
-	listen( sockfd, 5 );
-	clilen = sizeof(cli_addr);
 
 	while (1)
 	{
@@ -66,7 +39,6 @@ int main(int argc, char *argv[])
 			conect = userLog(promp);
 			if (conect == 1)
 			{
-				printf("Entre\n");
 				printf("Autenticacion CORRECTA\n");
 				getpromp(promp);
 				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
@@ -89,20 +61,6 @@ int main(int argc, char *argv[])
 		if (pid == 0)
 		{ // Proceso hijo
 			close(sockfd);
-
-			//Comprobacion de usuarios
-			conect = userLog(promp);
-			if (conect == 1)
-			{
-				printf("Autenticacion CORRECTA\n");
-				getpromp(promp);
-				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
-			}
-			else
-			{
-				printf("Error de autenticacion \n");
-				exit(1);
-			}
 
 			while (1)
 			{
@@ -286,6 +244,8 @@ int setComando(int newsockfd, char promp[])
 			write(newsockfd, buffer, sizeof(buffer));
 			sleep(2);
 			updateFirmware(newsockfd);
+			close(newsockfd);
+			exit(0);
 		}
 		//Telemetria
 		else if (strcmp(buffer, "get telemetria") == 0)
