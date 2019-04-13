@@ -7,14 +7,7 @@
  *  @author Matias Navarro
  */
 
-/**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
- * @date 05/04/2019
- * @return 
- */
-
+#include "../../includes/colors.h"
 #include "../../includes/comunes.h"
 #include "../../includes/funciones_servidor.h"
 
@@ -26,12 +19,12 @@
 */
 int main(int argc, char *argv[])
 {
-	int sockfd, newsockfd, servlen, flag=0, pid;
+	int sockfd, servlen, flag=0;
 	unsigned int clilen;
 	struct sockaddr_un cli_addr, serv_addr;
 	char buffer[TAM];
 	char promp[TAM];
-
+	memset(promp,0,sizeof(promp));
 	//Cargo los usuarios al sistema
 	setUsers();
 
@@ -69,7 +62,7 @@ int main(int argc, char *argv[])
 
 	while (1)
 	{
-		int conect, n;
+		int conect, n, pid,newsockfd;
 		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 		if (newsockfd < 0)
 		{
@@ -82,7 +75,6 @@ int main(int argc, char *argv[])
 			conect = userLog(promp);
 			if (conect == 1)
 			{
-				printf("Entre\n");
 				printf("Autenticacion CORRECTA\n");
 				getpromp(promp);
 				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
@@ -127,7 +119,7 @@ int main(int argc, char *argv[])
 		}
 		else
 		{
-			printf("\n \nSERVIDOR: Nuevo cliente, que atiende el proceso hijo: %d\n", pid);
+			printf("\nSERVIDOR: Nuevo cliente, que atiende el proceso hijo: %d\n", pid);
 			close(newsockfd);
 		}
 	}
@@ -164,7 +156,7 @@ int userLog(char promp[])
 {
 	char usuario[20], password[20];
 	int error = 0;
-	printf("Autenticacion de usuario\n");
+	printf("\nAutenticacion de usuario\n");
 
 	//Comprueba que el usuario sea correcto. Solo permite 3 errores
 	while (error < 3)
@@ -173,14 +165,12 @@ int userLog(char promp[])
 		fflush(stdout);
 		//Ingreso del usuario
 		fgets(usuario, 20, stdin);
-		fflush(stdin);
 		strtok(usuario, "\n");
 
 		printf("Password: ");
 		fflush(stdout);
 		//Ingreso de la contraseña
 		fgets(password, 20, stdin);
-		fflush(stdin);
 		strtok(password, "\n");
 
 		//Comprobacion de Usuario y Contraseña
@@ -190,7 +180,8 @@ int userLog(char promp[])
 			{
 				if (strcmp(users[i].pass, password) == 0)
 				{
-					strcpy(promp, users[i].uname);
+					strcat(promp, BOLDRED);
+					strcat(promp, users[i].uname);
 					return 1;
 				}
 			}
@@ -216,6 +207,7 @@ void getpromp(char promp[])
 	//Obtiene el nombre del host
 	gethostname(hostname, TAM);
 	strcat(promp, hostname);
+	strcat(promp,RESET);
 }
 
 /**
@@ -246,10 +238,10 @@ int setComando(int newsockfd, char promp[])
 {
 	char buffer[TAM];
 	char infoSat[TAM];
-	int v, flag=1;
+	int v;
 
 	//Bucle que espera los comandos
-	while (flag)
+	while (1)
 	{
 		printf("%s: ", promp);
 		memset(buffer, 0, sizeof(buffer));
@@ -328,7 +320,7 @@ void updateFirmware(int newsockfd)
 {
 	FILE *firmware;
 	char buffer[TAM], send[TAM];
-	int size, read_size, num_packet = 1, n;
+	int size, n; //num_packet = 1
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(send, 0, sizeof(send));
@@ -367,6 +359,7 @@ void updateFirmware(int newsockfd)
 	if (n < 0)
 	{
 		printf("Error en el update\n");
+		fclose(firmware);
 		return;
 	}
 
@@ -374,17 +367,18 @@ void updateFirmware(int newsockfd)
 	if (n < 0)
 	{
 		printf("Error en el update\n");
+		fclose(firmware);
 		return;
 	}
 
 	while (!feof(firmware))
 	{
+		int read_size;
 		//Lee del archivo y lo coloca en el buffer
 		read_size = fread(send, 1, sizeof(size) - 1, firmware);
 
 		//Envia el dato
 		write(newsockfd, send, read_size);
-		num_packet++;
 
 		//Limpia el buffer
 		memset(send, 0, sizeof(send));
@@ -458,7 +452,7 @@ int startScanning(int newsockfd){
 	FILE *picture;
 	char buffer[TAM];
 	char archivo[32000];
-	int size=0, reciv_size=0 ,read_size, num_packet = 1, packet_size, n;
+	int size=0, reciv_size=0 , num_packet = 1, packet_size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(archivo, 0, sizeof(archivo));
@@ -484,20 +478,17 @@ int startScanning(int newsockfd){
 
 	//Abre el archivo a "escribir" 
 	picture = fopen("./earth.jpg", "w");
-	if (picture == NULL)
-	{
-		printf("Error al abrir el archivo\n");
-		return -1;
-	}
 
 	while (reciv_size < size)
 	{
+		int read_size;
 		memset(archivo, 0, sizeof(archivo));
 		//Lee el tamaño del paquete
 		packet_size = read(newsockfd, archivo, sizeof(archivo));
 		if (packet_size < 0)
 		{
 			printf("Error en el update");
+			fclose(picture);
 			return -1;
 		}
 
@@ -509,6 +500,7 @@ int startScanning(int newsockfd){
 		{
 			printf("Error de escritura\n");
 			printf("Error en el update");
+			fclose(picture);
 			return -1;
 		}
 

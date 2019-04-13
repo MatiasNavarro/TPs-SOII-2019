@@ -15,10 +15,9 @@ static struct satelite sat;
 
 int main(int argc, char *argv[])
 {
-	int sockfd, puerto, n, v;
+	int sockfd, puerto, v;
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
-	int terminar = 0;
 
 	char buffer[TAM];
 	if (argc < 3)
@@ -58,6 +57,7 @@ int main(int argc, char *argv[])
 
 	while (1)
 	{
+		int n;
 		memset(buffer, '\0', TAM);
 		n = read(sockfd, buffer, TAM);
 		if (n < 0)
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
 		{
 			//Actualiza la version del firmware
 			printf("Update firmware ACK 00\n");
-			updateFirmware(sockfd);
+			updateFirmware(sockfd,argv);
 			//Obtiene informacion del satelite
 			setInfo();
 			//Imprime informacion del satelite
@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 			}
 		}
 
-		if (terminar)
+		if (strcmp(buffer,"fin")==0)
 		{
 			printf("Finalizando ejecución\n");
 			exit(0);
@@ -183,11 +183,11 @@ void getInfo()
  * @date 05/04/2019.
  * @author Navarro, Matias Alejandro.
  */
-void updateFirmware(int sockfd)
+void updateFirmware(int sockfd, char *argv[])
 {
 	FILE *firmware;
 	char buffer[TAM];
-	int size, reciv_size = 0, read_size, packet_size = 0, num_packet = 0, n;
+	int size, reciv_size = 0, packet_size = 0, num_packet = 0, n;
 	memset(buffer, 0, sizeof(buffer));
 
 	//Mensaje de confirmacion que se encuentra listo para el update
@@ -211,21 +211,24 @@ void updateFirmware(int sockfd)
 
 	//Abre el archivo donde escribira los datos de la actualizacion
 	firmware = fopen("../../bin/firmwareCliente.bin", "w");
-	if (firmware == NULL)
-	{
-		printf("Error al abrir el archivo\n");
-		printf("Error en el update");
-		return;
-	}
+	// if (firmware == NULL)
+	// {
+	// 	printf("Error al abrir el archivo\n");
+	// 	printf("Error en el update");
+	// 	fclose(firmware);
+	// 	return;
+	// }
 
 	while (reciv_size < size)
 	{
+		int read_size;
 		memset(buffer, 0, sizeof(buffer));
 		//Lee el tamaño del paquete
 		packet_size = read(sockfd, buffer, sizeof(buffer));
 		if (packet_size < 0)
 		{
 			printf("Error en el update");
+			fclose(firmware);
 			return;
 		}
 
@@ -237,6 +240,7 @@ void updateFirmware(int sockfd)
 		{
 			printf("Error de escritura\n");
 			printf("Error en el update");
+			fclose(firmware);
 			return;
 		}
 
@@ -248,6 +252,8 @@ void updateFirmware(int sockfd)
 
 	fclose(firmware);
 	printf("Actualizando firmware ... \n");
+	sleep(3);
+	execvp(argv[0],argv);
 }
 
 /**
@@ -327,7 +333,7 @@ int startScanning(int sockfd)
 	FILE *picture;
 	char buffer[TAM];
 	char archivo[32000];
-	int size, read_size, num_packet = 1, n;
+	int size, num_packet = 1, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(archivo, 0, sizeof(archivo));
@@ -366,6 +372,7 @@ int startScanning(int sockfd)
 	if (n < 0)
 	{
 		printf("Error en el update\n");
+		fclose(picture);
 		return -1;
 	}
 
@@ -373,11 +380,13 @@ int startScanning(int sockfd)
 	if (n < 0)
 	{
 		printf("Error en el update\n");
+		fclose(picture);
 		return -1;
 	}
 
 	while (!feof(picture))
 	{
+		int read_size;
 		//Lee del archivo y lo coloca en el buffer
 		read_size = fread(archivo, 1, sizeof(archivo) - 1, picture);
 

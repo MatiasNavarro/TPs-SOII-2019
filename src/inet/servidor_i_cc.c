@@ -6,58 +6,77 @@
  *
  *  @author Matias Navarro
  */
-
+#include "../../includes/colors.h"
 #include "../../includes/comunes.h"
 #include "../../includes/funciones_servidor.h"
 //#define TAM 256
 
 int main(int argc, char *argv[])
 {
-	int sockfd, newsockfd, pid, conect;
+	int sockfd,puerto, flag = 0;
 	socklen_t clilen;
 	char buffer[TAM], promp[TAM];
 	struct sockaddr_in serv_addr, cli_addr;
-	int n;
+	memset(promp,0,sizeof(promp));
 
 	//Cargo usuarios al server
 	setUsers();
 	/*!< Inicio el proceso servidor, levanto el socket en el puerto 6020 (TCP) */
 	start_server(&sockfd, &clilen, &serv_addr, &cli_addr);
 
-	// if ( argc < 2 ) {
-	//     	fprintf( stderr, "Uso: %s <puerto>\n", argv[0] );
-	// 	exit( 1 );
-	// }
+	if ( argc < 2 ) {
+	    	fprintf( stderr, "Uso: %s <puerto>\n", argv[0] );
+		exit( 1 );
+	}
 
-	// sockfd = socket( AF_INET, SOCK_STREAM, 0);
-	// if ( sockfd < 0 ) {
-	// 	perror( " apertura de socket ");
-	// 	exit( 1 );
-	// }
+	sockfd = socket( AF_INET, SOCK_STREAM, 0);
+	if ( sockfd < 0 ) {
+		perror( " apertura de socket ");
+		exit( 1 );
+	}
 
-	// memset( (char *) &serv_addr, 0, sizeof(serv_addr) );
-	// puerto = atoi( "6020" );
-	// serv_addr.sin_family = AF_INET;
-	// serv_addr.sin_addr.s_addr = INADDR_ANY;
-	// serv_addr.sin_port = htons( puerto );
+	memset( (char *) &serv_addr, 0, sizeof(serv_addr) );
+	puerto = atoi( "6020" );
+	serv_addr.sin_family = AF_INET;
+	serv_addr.sin_addr.s_addr = INADDR_ANY;
+	serv_addr.sin_port = htons( puerto );
 
-	// if ( bind(sockfd, ( struct sockaddr *) &serv_addr, sizeof( serv_addr ) ) < 0 ) {
-	// 	perror( "ligadura" );
-	// 	exit( 1 );
-	// }
+	if ( bind(sockfd, ( struct sockaddr *) &serv_addr, sizeof( serv_addr ) ) < 0 ) {
+		perror( "ligadura" );
+		exit( 1 );
+	}
 
-	//     printf( "Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr.sin_port) );
+	    printf( "Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr.sin_port) );
 
-	// listen( sockfd, 5 );
-	// clilen = sizeof(cli_addr);
+	listen( sockfd, 5 );
+	clilen = sizeof(cli_addr);
 
 	while (1)
 	{
+		int n, conect, newsockfd, pid;
 		newsockfd = accept(sockfd, (struct sockaddr *)&cli_addr, &clilen);
 		if (newsockfd < 0)
 		{
 			perror("accept");
 			exit(1);
+		}
+
+		//Comprobacion de usuarios
+		while(flag==0){
+			conect = userLog(promp);
+			if (conect == 1)
+			{
+				printf("Entre\n");
+				printf("Autenticacion CORRECTA\n");
+				getpromp(promp);
+				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
+				flag = 1;
+			}
+			else
+			{
+				printf("Error de autenticacion \n");
+				exit(1);
+			}
 		}
 
 		pid = fork();
@@ -100,23 +119,7 @@ int main(int argc, char *argv[])
 					}
 				}
 
-				// n = read( newsockfd, buffer, TAM-1 );
-				// if ( n < 0 ) {
-				// 	perror( "lectura de socket" );
-				// 	exit(1);
-				// }
-
-				// printf( "PROCESO %d. ", getpid() );
-				// printf( "Recibí: %s", buffer );
-
-				// n = write( newsockfd, "Obtuve su mensaje", 18 );
-				// if ( n < 0 ) {
-				// 	perror( "escritura en socket" );
-				// 	exit( 1 );
-				// }
-				// // Verificación de si hay que terminar
-				// buffer[strlen(buffer)-1] = '\0';
-				if (!strcmp("fin", buffer))
+				if (strcmp("fin", buffer)==0)
 				{
 					printf("PROCESO %d. Como recibí 'fin', termino la ejecución.\n\n", getpid());
 					exit(0);
@@ -223,9 +226,9 @@ int userLog(char promp[])
 			{
 				if (strcmp(users[i].pass, password) == 0)
 				{
-					strcpy(promp, users[i].uname);
+					strcat(promp, BOLDRED);
+					strcat(promp, users[i].uname);
 					return 1;
-					break;
 				}
 			}
 		}
@@ -250,6 +253,7 @@ void getpromp(char promp[])
 	//Obtiene el nombre del host
 	gethostname(hostname, TAM);
 	strcat(promp, hostname);
+	strcat(promp,RESET);
 }
 
 /**
@@ -263,10 +267,10 @@ int setComando(int newsockfd, char promp[])
 {
 	char buffer[TAM];
 	char infoSat[TAM];
-	int flag = 1, v;
+	int v;
 
 	//Bucle que espera los comandos
-	while (flag)
+	while (1)
 	{
 		printf("%s: ", promp);
 		memset(buffer, 0, sizeof(buffer));
@@ -362,7 +366,7 @@ void updateFirmware(int newsockfd)
 {
 	FILE *firmware;
 	char buffer[TAM], send[TAM];
-	int size, read_size, num_packet = 1, n;
+	int size, num_packet = 1, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(send, 0, sizeof(send));
@@ -386,11 +390,12 @@ void updateFirmware(int newsockfd)
 
 	//Abre el binario
 	firmware = fopen("../../bin/firmwareUpdate.bin", "r");
-	if (firmware == NULL)
-	{ //Comprueba que el archivo no este vacio
-		printf("Error al cargar el binario :c\n");
-		return;
-	}
+	// if (firmware == NULL)
+	// { //Comprueba que el archivo no este vacio
+	// 	printf("Error al cargar el binario :c\n");
+	// 	fclose(firmware);
+	// 	return;
+	// }
 
 	fseek(firmware, 0, SEEK_END);
 	size = ftell(firmware);
@@ -401,6 +406,7 @@ void updateFirmware(int newsockfd)
 	if (n < 0)
 	{
 		printf("Error en el update write\n");
+		fclose(firmware);
 		return;
 	}
 
@@ -408,11 +414,13 @@ void updateFirmware(int newsockfd)
 	if (n < 0)
 	{
 		printf("Error en el update read\n");
+		fclose(firmware);
 		return;
 	}
 
 	while (!feof(firmware))
 	{
+		int read_size;
 		//Lee del archivo y lo coloca en el buffer
 		read_size = fread(send, 1, sizeof(size) - 1, firmware);
 
@@ -498,7 +506,7 @@ int startScanning(int newsockfd)
 	FILE *picture;
 	char buffer[TAM];
 	char archivo[32000];
-	int size = 0, reciv_size = 0, read_size, num_packet = 1, packet_size, n;
+	int size = 0, reciv_size = 0, num_packet = 1, packet_size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(archivo, 0, sizeof(archivo));
@@ -523,20 +531,23 @@ int startScanning(int newsockfd)
 
 	//Abre el archivo a "escribir"
 	picture = fopen("./earth.jpg", "w");
-	if (picture == NULL)
-	{
-		printf("Error al abrir el archivo\n");
-		return -1;
-	}
+	// if (picture == NULL)
+	// {
+	// 	printf("Error al abrir el archivo\n");
+	// 	fclose(picture);
+	// 	return -1;
+	// }
 
 	while (reciv_size < size)
 	{
+		int read_size;
 		memset(archivo, 0, sizeof(archivo));
 		//Lee el tamaño del paquete
 		packet_size = read(newsockfd, archivo, sizeof(archivo));
 		if (packet_size < 0)
 		{
 			printf("Error en el update");
+			fclose(picture);
 			return -1;
 		}
 
@@ -548,6 +559,7 @@ int startScanning(int newsockfd)
 		{
 			printf("Error de escritura\n");
 			printf("Error en el update");
+			fclose(picture);
 			return -1;
 		}
 
