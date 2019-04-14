@@ -9,8 +9,13 @@
 #include "../../includes/colors.h"
 #include "../../includes/comunes.h"
 #include "../../includes/funciones_servidor.h"
-//#define TAM 256
 
+/**
+* @brief Función principal del Servidor.
+*
+* Crea un socket, espera la conexion del satelite (cliente)
+* y para mandarle comandos de las distintas funciones
+*/
 int main(int argc, char *argv[])
 {
 	int sockfd, flag = 0;
@@ -19,7 +24,7 @@ int main(int argc, char *argv[])
 	struct sockaddr_in serv_addr, cli_addr;
 	memset(promp,0,sizeof(promp));
 
-	//Cargo usuarios al server
+	//Carga los usuarios al sistema
 	setUsers();
 	/*!< Inicio el proceso servidor, levanto el socket en el puerto 6020 (TCP) */
 	start_server(&sockfd, &clilen, &serv_addr, &cli_addr);
@@ -39,7 +44,7 @@ int main(int argc, char *argv[])
 			conect = userLog(promp);
 			if (conect == 1)
 			{
-				printf("Autenticacion CORRECTA\n");
+				printf("\nAutenticacion CORRECTA\n\n");
 				getpromp(promp);
 				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
 				flag = 1;
@@ -74,6 +79,7 @@ int main(int argc, char *argv[])
 						conect = 0;
 						write(newsockfd, "Conexion Cerrada", sizeof("Conexion Cerrada"));
 						close(newsockfd);
+						exit(0);
 					}
 				}
 
@@ -116,6 +122,8 @@ void setUsers()
 * @args clilen
 * @args *serv_addr
 * @args *cli_addr
+* @date 05/04/2019.
+* @author Navarro, Matias Alejandro.
 */
 void start_server(int *sockfd, socklen_t *clilen, struct sockaddr_in *serv_addr, struct sockaddr_in *cli_addr)
 {
@@ -142,7 +150,7 @@ void start_server(int *sockfd, socklen_t *clilen, struct sockaddr_in *serv_addr,
 
 	printf("Proceso: %d - socket disponible: %d\n", getpid(), ntohs(serv_addr->sin_port));
 
-	listen(*sockfd, 5);
+	listen(*sockfd, 1);
 	*clilen = sizeof(*cli_addr);
 }
 
@@ -160,7 +168,7 @@ int userLog(char promp[])
 {
 	char usuario[20], password[20];
 	int error = 0;
-	printf("Autenticacion de usuario\n");
+	printf("\nAutenticacion de usuario\n");
 
 	//Comprueba que el usuario sea correcto. Solo permite 3 errores
 	while (error < 3)
@@ -242,7 +250,7 @@ int setComando(int newsockfd, char promp[])
 		{
 			printf("Actualizando Firmware\n");
 			write(newsockfd, buffer, sizeof(buffer));
-			sleep(2);
+			sleep(1);
 			updateFirmware(newsockfd);
 			close(newsockfd);
 			exit(0);
@@ -252,7 +260,7 @@ int setComando(int newsockfd, char promp[])
 		{
 			printf("Obteniendo telemetria\n \n");
 			write(newsockfd, buffer, sizeof(buffer));
-			sleep(2);
+			sleep(1);
 			v = telemetria(infoSat);
 			if (v == 0)
 			{
@@ -266,7 +274,7 @@ int setComando(int newsockfd, char promp[])
 		//Star Scanning
 		else if (strcmp(buffer, "start scanning") == 0)
 		{
-			printf("Start Scannig\n");
+			printf("Comenzando el escaneo\n");
 			write(newsockfd,buffer,sizeof(buffer));
 			v = startScanning(newsockfd);
 			sleep(2);
@@ -317,7 +325,7 @@ void getComandosValidos()
 }
 
 /**
- * @brief Funcion que actualiza el firmware del satelite. Lee un archivo binario y lo envio.
+ * @brief Funcion que actualiza el firmware del satelite. Lee un archivo binario y lo envia.
  * @param newsockfd: socket por donde se envia y reciben los datos.
  * @date 05/04/2019
  * @author Navarro, Matias Alejandro
@@ -354,7 +362,6 @@ void updateFirmware(int newsockfd)
 	fseek(firmware, 0, SEEK_END);
 	size = ftell(firmware);
 	fseek(firmware, 0, SEEK_SET);
-	// printf("Size %i\n", size);
 
 	n = write(newsockfd, &size, sizeof(size));
 	if (n < 0)
@@ -380,23 +387,21 @@ void updateFirmware(int newsockfd)
 
 		//Envia el dato
 		write(newsockfd, send, read_size);
-		//num_packet++;
 
 		//Limpia el buffer
 		memset(send, 0, sizeof(send));
 	}
 
 	fclose(firmware);
-	sleep(2);
 	printf("Actualizacion exitosa\n");
+	sleep(1);
 }
 
 /**
  * @brief Funcion que obtiene la informacion de los distintos campos del cliente (satelite),
- * como son el ID, Update, Version de Firmware y Consumo de CPU.
- * @param newsockfd: socket por el cual se realiza la comunicacion con el cliente.
- *        infoStat: buffer donde se va a guardar los datos recibidos desde el satelite.
- * @return 0 si la comunicaicon no tuvo errores.
+ * como son el ID, Update, Version de Firmware y Consumo de CPU. 
+ * @param infoStat: buffer donde se va a guardar los datos recibidos desde el satelite.
+ * @return 0 si la comunicacion no tuvo errores.
  *        -1 si ocurrio algun error.
  * @date 05/04/2019
  * @author Navarro, Matias Alejandro
@@ -429,7 +434,6 @@ int telemetria(char infoSat[])
 		return -1;
 	}
 
-	printf("Socket disponible: %d\n", ntohs(serv_addr.sin_port));
 	tamano_direccion = sizeof(struct sockaddr);
 
 	n = recvfrom(socket_server, buffer, TAM - 1, 0, (struct sockaddr *)&serv_addr, &tamano_direccion);
@@ -448,19 +452,20 @@ int telemetria(char infoSat[])
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
+ * @brief Funcion encargada de recibir y construir la imagen enviada desde el satelite.
+ * @param newsockfd: socket por donde se envia y reciben los datos.
+ * @return 0 si la comunicacion no tuvo errores.
+ *        -1 si ocurrio algun error.
  * @date 05/04/2019
- * @return 
+ * @author Navarro, Matias Alejandro
  */
 int startScanning(int newsockfd)
 {
 
 	FILE *picture;
 	char buffer[TAM];
-	char archivo[32000];
-	int size = 0, reciv_size = 0, num_packet = 1, packet_size, n;
+	char archivo[1400];
+	int size = 0, reciv_size = 0, packet_size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(archivo, 0, sizeof(archivo));
@@ -471,6 +476,7 @@ int startScanning(int newsockfd)
 		printf("Error al leer el socket");
 		return -1;
 	}
+	printf("Sincronizacion Correcta\n");
 
 	packet_size = read(newsockfd, &size, sizeof(size));
 	if (packet_size < 0)
@@ -479,7 +485,7 @@ int startScanning(int newsockfd)
 		return -1;
 	}
 
-	printf("Tamañano del archivo: %i\n", packet_size);
+	printf("Tamaño del archivo: %i bytes\n", size);
 	//Verificacion del tamaño
 	write(newsockfd, &size, sizeof(size));
 
@@ -499,9 +505,6 @@ int startScanning(int newsockfd)
 			return -1;
 		}
 
-		printf("Paquete %i recibido correctamente\n", num_packet);
-		printf("Tamaño del paquete: %i\n", packet_size);
-
 		read_size = fwrite(archivo, 1, packet_size, picture);
 		if (read_size != packet_size)
 		{
@@ -512,9 +515,6 @@ int startScanning(int newsockfd)
 		}
 
 		reciv_size += read_size;
-		num_packet++;
-
-		printf("Tamaño total del binario recibido: %i\n", reciv_size);
 	}
 
 	fclose(picture);

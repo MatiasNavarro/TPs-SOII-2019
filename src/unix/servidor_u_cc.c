@@ -14,8 +14,8 @@
 /**
 * @brief Función principal del Servidor.
 *
-* Crea un socket, espera hasta 5 conexiones
-* y ejecuta las funciones que recibe del cliente.
+* Crea un socket, espera la conexion del satelite (cliente)
+* y para mandarle comandos de las distintas funciones
 */
 int main(int argc, char *argv[])
 {
@@ -25,7 +25,8 @@ int main(int argc, char *argv[])
 	char buffer[TAM];
 	char promp[TAM];
 	memset(promp,0,sizeof(promp));
-	//Cargo los usuarios al sistema
+
+	//Carga los usuarios al sistema
 	setUsers();
 
 	/* Se toma el nombre del socket de la línea de comandos */
@@ -57,7 +58,7 @@ int main(int argc, char *argv[])
 
 	printf("Proceso: %d - socket disponible: %s\n", getpid(), serv_addr.sun_path);
 
-	listen(sockfd, 5);
+	listen(sockfd, 1);
 	clilen = sizeof(cli_addr);
 
 	while (1)
@@ -107,6 +108,7 @@ int main(int argc, char *argv[])
 						conect=0;
 						write(newsockfd,"Conexion Cerrada",sizeof("Conexion Cerrada"));
 						close(newsockfd);
+						exit(0);
 					}
 				}
 				memset(buffer, 0, TAM);
@@ -211,23 +213,6 @@ void getpromp(char promp[])
 }
 
 /**
- * @brief Funcion que imprime los comandos validos que puede se pueden ingresar desde
- * el servidor.
- * @date 05/04/2019.
- * @author Navarro, Matias Alejandro
- */
-void getComandosValidos()
-{
-	printf("\n");
-	printf("- update firmware: actualiza el firmware del satelite\n");
-	printf("- get telemetria: obtiene los datos del satelite\n");
-	printf("- start scanning: comienza el escaneo de la tierra\n");
-	printf("- exit: apagar el sistema\n");
-	printf("\n");
-	fflush(stdout);
-}
-
-/**
  * @brief Funcion que permite ingresar los distintos comandos disponibles. 
  * @param 	newsockfd: socket por donde se envia y reciben los datos.
  * 	 		promp: el prop del usuario del server (Ej: "Bianca@MatiasNavarro-Linux")..
@@ -255,7 +240,7 @@ int setComando(int newsockfd, char promp[])
 		{
 			printf("Actualizando Firmware\n");
 			write(newsockfd, buffer, sizeof(buffer));
-			sleep(2);
+			sleep(1);
 			updateFirmware(newsockfd);
 			close(newsockfd);
 			exit(0);
@@ -278,7 +263,7 @@ int setComando(int newsockfd, char promp[])
 		//Star Scanning
 		else if (strcmp(buffer, "start scanning") == 0)
 		{
-			printf("Start Scannig\n");
+			printf("Comenzando el escaneo\n");
 			write(newsockfd,buffer,sizeof(buffer));
 			v = startScanning(newsockfd);
 			sleep(2);
@@ -313,6 +298,23 @@ int setComando(int newsockfd, char promp[])
 }
 
 /**
+ * @brief Funcion que imprime los comandos validos que puede se pueden ingresar desde
+ * el servidor.
+ * @date 05/04/2019.
+ * @author Navarro, Matias Alejandro
+ */
+void getComandosValidos()
+{
+	printf("\n");
+	printf("- update firmware: actualiza el firmware del satelite\n");
+	printf("- get telemetria: obtiene los datos del satelite\n");
+	printf("- start scanning: comienza el escaneo de la tierra\n");
+	printf("- exit: apagar el sistema\n");
+	printf("\n");
+	fflush(stdout);
+}
+
+/**
  * @brief Funcion que actualiza el firmware del satelite. Lee un archivo binario y lo envio.
  * @param newsockfd: socket por donde se envia y reciben los datos.
  * @date 05/04/2019
@@ -322,7 +324,7 @@ void updateFirmware(int newsockfd)
 {
 	FILE *firmware;
 	char buffer[TAM], send[TAM];
-	int size, n; //num_packet = 1
+	int size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(send, 0, sizeof(send));
@@ -355,7 +357,6 @@ void updateFirmware(int newsockfd)
 	fseek(firmware, 0, SEEK_END);
 	size = ftell(firmware);
 	fseek(firmware, 0, SEEK_SET);
-	// printf("Size %i\n", size);
 
 	n = write(newsockfd, &size, sizeof(size));
 	if (n < 0)
@@ -387,15 +388,14 @@ void updateFirmware(int newsockfd)
 	}
 
 	fclose(firmware);
-	sleep(2);
 	printf("Actualizacion exitosa\n");
+	sleep(1);
 }
 
 /**
  * @brief Funcion que obtiene la informacion de los distintos campos del cliente (satelite),
  * como son el ID, Update, Version de Firmware y Consumo de CPU.
- * @param newsockfd: socket por el cual se realiza la comunicacion con el cliente.
- *        infoStat: buffer donde se va a guardar los datos recibidos desde el satelite.
+ * @param infoStat: buffer donde se va a guardar los datos recibidos desde el satelite.
  * @return 0 si la comunicaicon no tuvo errores.
  *        -1 si ocurrio algun error.
  * @date 05/04/2019
@@ -426,7 +426,6 @@ int telemetria(char infoSat[])
 		return -1;
 	}
 
-	printf("Socket disponible: %s\n", struct_servidor.sun_path);
 	tamano_direccion = sizeof(tamano_direccion);
 
 	n = recvfrom(socket_server,(void *)buffer, sizeof(buffer), 0 ,(struct sockaddr *)&socket_server, &tamano_direccion);
@@ -438,23 +437,25 @@ int telemetria(char infoSat[])
 	strcpy(infoSat,buffer);
 	printf("%s\n",infoSat);
 	fflush(stdout);
+	close(socket_server);
 
 	return 0;
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
+ * @brief Funcion encargada de recibir y construir la imagen enviada desde el satelite.
+ * @param newsockfd: socket por donde se envia y reciben los datos.
+ * @return 0 si la comunicacion no tuvo errores.
+ *        -1 si ocurrio algun error.
  * @date 05/04/2019
- * @return 
+ * @author Navarro, Matias Alejandro
  */
 int startScanning(int newsockfd){
 
 	FILE *picture;
 	char buffer[TAM];
 	char archivo[32000];
-	int size=0, reciv_size=0 , num_packet = 1, packet_size, n;
+	int size=0, reciv_size=0 , packet_size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
 	memset(archivo, 0, sizeof(archivo));
@@ -465,7 +466,7 @@ int startScanning(int newsockfd){
 		printf("Error al leer el socket");
 		return -1;
 	}
-
+	printf("Sincronizacion Correcta\n");
 
 	packet_size = read(newsockfd, &size, sizeof(size));
 	if (packet_size < 0)
@@ -474,7 +475,7 @@ int startScanning(int newsockfd){
 		return -1;
 	}
 
-	printf("Tamañano del archivo: %i\n", packet_size);
+	printf("Tamaño del archivo: %i bytes\n", size);
 	//Verificacion del tamaño
 	write(newsockfd, &size, sizeof(size));
 
@@ -494,9 +495,6 @@ int startScanning(int newsockfd){
 			return -1;
 		}
 
-		printf("Paquete %i recibido correctamente\n", num_packet);
-		printf("Tamaño del paquete: %i\n", packet_size);
-
 		read_size = fwrite(archivo, 1, packet_size, picture);
 		if (read_size != packet_size)
 		{
@@ -507,9 +505,6 @@ int startScanning(int newsockfd){
 		}
 
 		reciv_size += read_size;
-		num_packet++;
-
-		printf("Tamaño total del binario recibido: %i\n", reciv_size);
 	}
 
 	fclose(picture);

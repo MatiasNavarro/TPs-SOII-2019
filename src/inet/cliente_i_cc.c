@@ -9,7 +9,6 @@
 
 #include "../../includes/comunes.h"
 #include "../../includes/funciones_cliente.h"
-//#define TAM 256
 
 static struct satelite sat;
 
@@ -26,6 +25,7 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 
+	//Seleccion del puerto
 	puerto = atoi("6020");
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
@@ -34,6 +34,7 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	//Obtiene la direccion IP
 	server = gethostbyname(argv[1]);
 	if (server == NULL)
 	{
@@ -50,6 +51,8 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	//Iniciando satelite
+	printf("\nIniciando el satelite...\n");
 	//Obtengo la informacion del satelite
 	setInfo();
 	//Imprimo la informacion del satelite
@@ -71,23 +74,19 @@ int main(int argc, char *argv[])
 		if (strcmp(buffer, "update firmware") == 0)
 		{
 			//Actualiza la version del firmware
-			printf("Update firmware ACK 00\n");
+			printf("\nUpdate firmware\n");
 			updateFirmware(sockfd,argv);
-			//Obtiene informacion del satelite
-			setInfo();
-			//Imprime informacion del satelite
-			getInfo();
 		}
 		//Telemetria
 		else if (strcmp(buffer, "get telemetria") == 0)
 		{
 			//Obteniendo telemetria
-			printf("Obteniendo telemetria\n");
-			sleep(2);
+			printf("\nObteniendo telemetria\n");
+			sleep(1);
 			v = telemetria_inet(argv);
 			if (v == 0)
 			{
-				printf("Telemetria completada exitosamente\n");
+				printf("Telemetria completada exitosamente\n\n");
 			}
 			else
 			{
@@ -97,11 +96,11 @@ int main(int argc, char *argv[])
 		else if (strcmp(buffer, "start scanning") == 0)
 		{
 			//Comienza el escaneo de la tierra
-			printf("Comenzando el escaneo\n");
+			printf("\nComenzando el escaneo\n");
 			v = startScanning(sockfd);
 			if (v == 0)
 			{
-				printf("Escaneo realizado con exito\n");
+				printf("Escaneo realizado con exito\n\n");
 			}
 			else
 			{
@@ -124,8 +123,6 @@ int main(int argc, char *argv[])
  * @date 05/04/2019.
  * @author Navarro, Matias Alejandro.
  */
-
-//Actualiza la informacion del satelite
 void setInfo()
 {
 	FILE *versionFile;
@@ -205,7 +202,6 @@ void updateFirmware(int sockfd, char *argv[])
 		printf("Error en el update\n");
 		return;
 	}
-	printf("Tamañano del archivo de update: %i\n", packet_size);
 	//Verificacion del tamaño
 	write(sockfd, &size, sizeof(size));
 
@@ -225,9 +221,6 @@ void updateFirmware(int sockfd, char *argv[])
 			return;
 		}
 
-		printf("Paquete %i recibido correctamente\n", num_packet);
-		printf("Tamaño del paquete: %i\n", packet_size);
-
 		read_size = fwrite(buffer, 1, packet_size, firmware);
 		if (read_size != packet_size)
 		{
@@ -239,13 +232,14 @@ void updateFirmware(int sockfd, char *argv[])
 
 		reciv_size += packet_size;
 		num_packet++;
-
-		printf("Tamaño total del binario recibido: %i\n", reciv_size);
 	}
 
 	fclose(firmware);
-	printf("Actualizando firmware ... \n");
-	sleep(3);
+	printf("Actualizando firmware ... \n\n");
+	printf("Actualizacion exitosa");
+	printf("Reiniciando ...\n");
+	fflush(stdout);
+	sleep(1);
 	close(sockfd);
 	execvp(argv[0],argv);
 }
@@ -260,7 +254,6 @@ void updateFirmware(int sockfd, char *argv[])
  */
 int telemetria_inet(char *argv[])
 {
-	printf("Entre en telemetria\n");
 	int sockfd, puerto, n;
 	struct sockaddr_in dest_addr;
 	struct hostent *server;
@@ -268,6 +261,7 @@ int telemetria_inet(char *argv[])
 	socklen_t tamano_direccion;	
 	memset(buffer,0,sizeof(buffer));
 
+	//Obtiene la direccion IP
 	server = gethostbyname(argv[1]);
 	if ( server == NULL ) 
 	{
@@ -280,7 +274,6 @@ int telemetria_inet(char *argv[])
 		perror( "apertura de socket" );
 		return -1;
 	}
-	printf("ACK Socket creado \n");
 
 	puerto = atoi("6025");
 	dest_addr.sin_family = AF_INET;
@@ -299,7 +292,6 @@ int telemetria_inet(char *argv[])
 	strcat(buffer, sat.consumoCPU);
 	strcat(buffer, "\n");
 
-	printf("%s\n",buffer);
 	n = sendto( sockfd, (void *)buffer, TAM, 0, (struct sockaddr *)&dest_addr, tamano_direccion );
 	if (n < 0)
 	{
@@ -316,17 +308,18 @@ int telemetria_inet(char *argv[])
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
+ * @brief Funcion encargada de fragmentar una imagen del satelite(cliente) y enviarla a la estacion (servidor)
+ * @param sockfd: socket por donde se envia y reciben los datos.
+ * @return 0 si la comunicacion no tuvo errores.
+ *        -1 si ocurrio algun error.
  * @date 05/04/2019
- * @return 
+ * @author Navarro, Matias Alejandro
  */
 int startScanning(int sockfd)
 {
 	FILE *picture;
 	char buffer[TAM];
-	char archivo[32000];
+	char archivo[1500];
 	int size, num_packet = 1, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
@@ -360,7 +353,7 @@ int startScanning(int sockfd)
 	fseek(picture, 0, SEEK_END);
 	size = ftell(picture);
 	fseek(picture, 0, SEEK_SET);
-	printf("Size %i\n", size);
+	printf("Tamaño del archivo: %i bytes\n", size);
 
 	n = write(sockfd, &size, sizeof(size));
 	if (n < 0)
@@ -392,9 +385,7 @@ int startScanning(int sockfd)
 		memset(archivo, 0, sizeof(archivo));
 	}
 
-	printf("Cantidad de paquetes enviados: %i\n", num_packet);
 	fclose(picture);
-	sleep(2);
-	printf("Actualizacion exitosa\n");
+	sleep(1);
 	return 0;
 }

@@ -16,7 +16,6 @@ int main(int argc, char *argv[])
 	int sockfd, servlen,v;
 	struct sockaddr_un serv_addr;
 	char buffer[TAM];
-	int terminar = 0;
 
 	if (argc < 2)
 	{
@@ -60,13 +59,6 @@ int main(int argc, char *argv[])
 			exit(1);
 		}
 
-		// Verificando si se escribió: fin
-		buffer[strlen(buffer) - 1] = '\0';
-		if (!strcmp("fin", buffer))
-		{
-			terminar = 1;
-		}
-
 		memset(buffer, '\0', TAM);
 		n = read(sockfd, buffer, TAM);
 		if (n < 0)
@@ -79,18 +71,15 @@ int main(int argc, char *argv[])
 		//Update
 		if (strcmp(buffer, "update firmware") == 0)
 		{
+			printf("\nUpdate firmware\n");
 			//Actualiza la version del firmware
 			updateFirmware(sockfd,argv);
-			//Obtiene informacion del satelite
-			setInfo();
-			//Imprime informacion del satelite
-			getInfo();
 		}
 		//Telemetria
 		else if(strcmp(buffer,"get telemetria")==0){
 			//Obteniendo telemetria
-			printf("Obteniendo telemetria\n");
-			sleep(2);
+			printf("\nObteniendo telemetria\n");
+			sleep(1);
 			v = telemetria();
 			if(v==0)
 			{
@@ -103,7 +92,7 @@ int main(int argc, char *argv[])
 		}
 		else if(strcmp(buffer,"start scanning")==0){
 			//Comienza el escaneo de la tierra
-			printf("Comenzando el escaneo\n");
+			printf("\nComenzando el escaneo\n");
 			v = startScanning(sockfd);
 			if(v==0){
 				printf("Escaneo realizado con exito\n");
@@ -115,7 +104,7 @@ int main(int argc, char *argv[])
 			
 		}
 
-		if (terminar)
+		if (strcmp(buffer,"fin")==0)
 		{
 			printf("Finalizando ejecución\n");
 			exit(0);
@@ -130,8 +119,6 @@ int main(int argc, char *argv[])
  * @date 05/04/2019.
  * @author Navarro, Matias Alejandro.
  */
-
-//Actualiza la informacion del satelite
 void setInfo()
 {
 	FILE *versionFile;
@@ -211,7 +198,6 @@ void updateFirmware(int sockfd, char *argv[])
 		printf("Error en el update\n");
 		return;
 	}
-	printf("Tamañano del archivo de update: %i\n", packet_size);
 	//Verificacion del tamaño
 	write(sockfd, &size, sizeof(size));
 
@@ -231,9 +217,6 @@ void updateFirmware(int sockfd, char *argv[])
 			return;
 		}
 
-		printf("Paquete %i recibido correctamente\n", num_packet);
-		printf("Tamaño del paquete: %i\n", packet_size);
-
 		read_size = fwrite(buffer, 1, packet_size, firmware);
 		if (read_size != packet_size)
 		{
@@ -245,15 +228,14 @@ void updateFirmware(int sockfd, char *argv[])
 
 		reciv_size += packet_size;
 		num_packet++;
-
-		printf("Tamaño total del binario recibido: %i\n", reciv_size);
 	}
 
 	fclose(firmware);
 	printf("Actualizando firmware ... \n");
+	printf("Actualizacion exitosa\n");
 	printf("Reiniciando ...\n");
 	fflush(stdout);
-	sleep(3);
+	sleep(1);
 	close(sockfd);
 	execvp(argv[0],argv);
 }
@@ -297,16 +279,14 @@ int telemetria()
 	strcat(buffer,sat.consumoCPU);
 	strcat(buffer,"\n");
 
-	printf("%s\n",buffer);
 	n = sendto(descriptor_socket,buffer,TAM,0, (struct sockaddr *)&struct_cliente, sizeof(struct_cliente));
-	printf("%i \n",n);
 	if(n<0){
-		printf("ACK -1\n");
+		//Error de lectura
 		return -1;
 	}
 	else
 	{
-		printf("ACK 0\n");
+		//Los datos se enviaron correctamente
 		return 0;
 	}
 	
@@ -314,11 +294,12 @@ int telemetria()
 }
 
 /**
- * @brief Funcion 
- * @author Navarro, Matias Alejandro
- * @param 
+ * @brief Funcion encargada de fragmentar una imagen del satelite(cliente) y enviarla a la estacion (servidor)
+ * @param sockfd: socket por donde se envia y reciben los datos.
+ * @return 0 si la comunicacion no tuvo errores.
+ *        -1 si ocurrio algun error.
  * @date 05/04/2019
- * @return 
+ * @author Navarro, Matias Alejandro
  */
 int startScanning(int sockfd){
 	FILE *picture;
@@ -357,7 +338,7 @@ int startScanning(int sockfd){
 	fseek(picture, 0, SEEK_END);
 	size = ftell(picture);
 	fseek(picture, 0, SEEK_SET);
-	printf("Size %i\n", size);
+	printf("Tamaño del archivo: %i bytes\n", size);
 
 	n = write(sockfd, &size, sizeof(size));
 	if (n < 0)
@@ -389,9 +370,7 @@ int startScanning(int sockfd){
 		memset(archivo, 0, sizeof(archivo));
 	}
 
-	printf("Cantidad de paquetes enviados: %i\n",num_packet);
 	fclose(picture);
-	sleep(2);
-	printf("Actualizacion exitosa\n");
+	sleep(1);
 	return 0;
 }
