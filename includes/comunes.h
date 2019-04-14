@@ -17,13 +17,6 @@
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <netinet/in.h>
-
 #include <sys/un.h>
+#include <time.h>
 #define TAM 1024
-
-#define endMsg "/END"
-#define disconnectMsg "/BYE"
-#define start_UDP_Msg "/START"
-#define ack_msg "/ACK"
-#define end_UDP_Msg "/FINISH"
-#define udp_ready "/UDP_READY"

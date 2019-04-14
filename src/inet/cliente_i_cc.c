@@ -130,9 +130,15 @@ void setInfo()
 	char buffer[TAM];
 	char stateFile[TAM];
 	char pid[TAM];
+	//Obtiene los datos del tiempo (fecha y hora)
+	time_t t;
+	t=time(NULL);
+	struct tm *tm =localtime(&t);
+	char time[100];
+	strftime(time,100, "%d/%m/%Y %H:%M:%S",tm);
 
 	strcpy(sat.ID, "ARCOR SAT");
-	strcpy(sat.uptime, "11:20 a.m");
+	strcpy(sat.uptime, time);
 
 	//Lee la version del firmware del Archivo firmwareClient.bin para cargar la version
 	versionFile = fopen("../../bin/firmwareCliente.bin", "r");
