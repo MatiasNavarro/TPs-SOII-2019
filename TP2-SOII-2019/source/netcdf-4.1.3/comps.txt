@@ -1,0 +1,1 @@
+CPPFLAGS=-I/home/matiasnavarro/Development/SO2/hpc/libs/hdf5/include -I/home/matiasnavarro/Development/SO2/hpc/libs/zlib/include: CC=gcc CFLAGS=-g -O2 CXX=g++ CXXFLAGS=-g -O2 FC= FCFLAGS= F77= FFLAGS= LDFLAGS=-L/home/matiasnavarro/Development/SO2/hpc/libs/hdf5/lib -L/home/matiasnavarro/Development/SO2/hpc/libs/zlib/lib LIBS= FLIBS= F90LIBS=
