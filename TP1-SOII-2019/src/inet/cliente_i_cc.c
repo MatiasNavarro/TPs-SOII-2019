@@ -288,6 +288,7 @@ void updateFirmware(int sockfd, char *argv[])
 	fflush(stdout);
 	sleep(1);
 	close(sockfd);
+	system("cd /home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP1-SOII-2019/src/inet && make");
 	execvp(argv[0],argv);
 }
 
