@@ -188,7 +188,7 @@ void getInfo()
  */
 void updateFirmware(int sockfd, char *argv[])
 {
-	FILE *firmware, *codigo;
+	FILE *firmware;
 	char buffer[TAM];
 	int size, reciv_size = 0, packet_size = 0, n;
 	memset(buffer, 0, sizeof(buffer));
@@ -208,7 +208,6 @@ void updateFirmware(int sockfd, char *argv[])
 		printf("Error en el update\n");
 		return;
 	}
-
 	//Verificacion del tamaño
 	write(sockfd, &size, sizeof(size));
 
@@ -239,51 +238,10 @@ void updateFirmware(int sockfd, char *argv[])
 
 		reciv_size += packet_size;
 	}
+
 	fclose(firmware);
-
-	//Mensaje de confirmacion que se encuentra listo para el update
-	n = write(sockfd, "OK", sizeof("OK"));
-	if (n < 0)
-	{
-		printf("Error en el update\n");
-		return;
-	}
-
-	//Recibe el tamaño del archivo
-	size=0;
-	packet_size = read(sockfd, &size, sizeof(size));
-	memset(buffer, 0, sizeof(buffer));
-	reciv_size = 0;
-
-	//Abre el archivo a "escribir"
-	codigo = fopen("./cliente_i_cc_v1_1.c", "w");
-	while (reciv_size < size)
-	{
-		int read_size;
-		memset(buffer, 0, sizeof(buffer));
-		//Lee el tamaño del paquete
-		packet_size = read(sockfd, buffer, sizeof(buffer));
-		if (packet_size < 0)
-		{
-			printf("Error en el update");
-			fclose(codigo);
-			return;
-		}
-
-		read_size = fwrite(buffer, 1, packet_size, codigo);
-		if (read_size != packet_size)
-		{
-			printf("Error de escritura\n");
-			printf("Error en el update");
-			fclose(codigo);
-			return;
-		}
-		reciv_size += read_size;
-	}
-	fclose(codigo);
-	
 	printf("Actualizando firmware ... \n\n");
-	printf("Actualizacion exitosa\n");
+	printf("Actualizacion exitosa");
 	printf("Reiniciando ...\n");
 	fflush(stdout);
 	sleep(1);
@@ -405,7 +363,7 @@ int startScanning(int sockfd)
 	n = write(sockfd, &size, sizeof(size));
 	if (n < 0)
 	{
-		printf("Error en el escaneo\n");
+		printf("Error en el update\n");
 		fclose(picture);
 		return -1;
 	}
@@ -413,7 +371,7 @@ int startScanning(int sockfd)
 	n = read(sockfd, &buffer, sizeof(buffer));
 	if (n < 0)
 	{
-		printf("Error en el escaneo\n");
+		printf("Error en el update\n");
 		fclose(picture);
 		return -1;
 	}

@@ -10,4 +10,4 @@ cppcheck:
 	cppcheck --enable=all .
 
 clean : 
-	rm servidor_i cliente_i earth.jpg\
+	rm servidor_i cliente_i earth.jpg cliente_i_cc_v1_1.c\

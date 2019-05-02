@@ -332,7 +332,7 @@ void getComandosValidos()
  */
 void updateFirmware(int newsockfd)
 {
-	FILE *firmware;
+	FILE *firmware,*codigo;
 	char buffer[TAM], send[TAM];
 	int size, n;
 	//Limpia lo buffers
@@ -352,7 +352,7 @@ void updateFirmware(int newsockfd)
 	}
 	else
 	{
-		printf("Error en el update OK\n");
+		printf("Error en el update\n");
 		return;
 	}
 
@@ -391,8 +391,60 @@ void updateFirmware(int newsockfd)
 		//Limpia el buffer
 		memset(send, 0, sizeof(send));
 	}
-
 	fclose(firmware);
+
+
+
+	n = read(newsockfd, buffer, sizeof(buffer));
+	if (n < 0)
+	{
+		printf("Error al leer el socket");
+		return;
+	}
+	//Compruebo que el satelite este listo para la actualizacion
+	if (strcmp(buffer, "OK") == 0){}
+	else
+	{
+		printf("Error en el update OK\n");
+		return;
+	}
+
+	//Abre el código a enviar (.c)
+	codigo = fopen("../../bin/cliente_i_cc_v1_1.c", "r");
+	if (codigo == NULL)
+	{ //Comprueba que el archivo no este vacio
+		printf("Error al cargar el codigo\n");
+		return;
+	}
+
+
+	memset(send, 0, sizeof(send));
+	fseek(codigo, 0, SEEK_END);
+	size = ftell(codigo);
+	fseek(codigo, 0, SEEK_SET);
+
+	n = write(newsockfd, &size, sizeof(size));
+	if (n < 0)
+	{
+		printf("Error en el update write\n");
+		fclose(codigo);
+		return;
+	}
+
+	while (!feof(codigo))
+	{
+		int read_size;
+		//Lee del archivo y lo coloca en el buffer
+		read_size = fread(send, 1, sizeof(send) - 1, codigo);
+
+		//Envia el dato
+		write(newsockfd, send, read_size);
+
+		//Limpia el buffer
+		memset(send, 0, sizeof(send));
+	}
+	fclose(codigo);
+
 	printf("Actualizacion exitosa\n");
 	sleep(1);
 }
@@ -481,7 +533,7 @@ int startScanning(int newsockfd)
 	packet_size = read(newsockfd, &size, sizeof(size));
 	if (packet_size < 0)
 	{
-		printf("Error en el update\n");
+		printf("Error en el escaneo\n");
 		return -1;
 	}
 
@@ -500,7 +552,7 @@ int startScanning(int newsockfd)
 		packet_size = read(newsockfd, archivo, sizeof(archivo));
 		if (packet_size < 0)
 		{
-			printf("Error en el update");
+			printf("Error en el escaneo");
 			fclose(picture);
 			return -1;
 		}
@@ -509,7 +561,7 @@ int startScanning(int newsockfd)
 		if (read_size != packet_size)
 		{
 			printf("Error de escritura\n");
-			printf("Error en el update");
+			printf("Error en el escaneo");
 			fclose(picture);
 			return -1;
 		}
