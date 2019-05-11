@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 	struct hostent *server;
 
 	char buffer[TAM];
-	if (argc < 3)
+	if (argc < 2)
 	{
 		fprintf(stderr, "Uso %s host puerto\n", argv[0]);
 		exit(0);
@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
 		{
 			//Obteniendo telemetria
 			printf("\nObteniendo telemetria\n");
-			sleep(1);
 			v = telemetria_inet(argv);
 			if (v == 0)
 			{
@@ -106,6 +105,12 @@ int main(int argc, char *argv[])
 			{
 				printf("Error durante el escaneo\n");
 			}
+		}
+		else if(strcmp(buffer, "Error de Autenticacion")==0)
+		{
+			printf("Autenticacion Fallida\n");
+			close(sockfd);
+			exit(1);
 		}
 
 		if (strcmp(buffer,"fin")==0)
@@ -212,6 +217,9 @@ void updateFirmware(int sockfd, char *argv[])
 	//Verificacion del tamaño
 	write(sockfd, &size, sizeof(size));
 
+	//#############################################################
+	//FIRMWARE(.bin)
+	
 	//Abre el archivo donde escribira los datos de la actualizacion
 	firmware = fopen("../../bin/firmwareCliente.bin", "w");
 
@@ -241,6 +249,8 @@ void updateFirmware(int sockfd, char *argv[])
 	}
 	fclose(firmware);
 
+	//#############################################################
+	//CODIGO (.c)
 	//Mensaje de confirmacion que se encuentra listo para el update
 	n = write(sockfd, "OK", sizeof("OK"));
 	if (n < 0)
@@ -286,7 +296,6 @@ void updateFirmware(int sockfd, char *argv[])
 	printf("Actualizacion exitosa\n");
 	printf("Reiniciando ...\n");
 	fflush(stdout);
-	sleep(1);
 	close(sockfd);
 	system("cd /home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP1-SOII-2019/src/inet && make update");
 	execvp(argv[0],argv);
@@ -367,7 +376,7 @@ int startScanning(int sockfd)
 {
 	FILE *picture;
 	char buffer[TAM];
-	char archivo[1500];
+	char archivo[1400];
 	int size, n;
 	//Limpia lo buffers
 	memset(buffer, 0, sizeof(buffer));
@@ -398,9 +407,9 @@ int startScanning(int sockfd)
 		return -1;
 	}
 
-	fseek(picture, 0, SEEK_END);
-	size = ftell(picture);
-	fseek(picture, 0, SEEK_SET);
+	fseek(picture, 0, SEEK_END); 	//Posiciona el puntero en SEEK_END(final del arcivo)
+	size = ftell(picture);			//Obtengo el tamaño del archivo 
+	fseek(picture, 0, SEEK_SET);	//Posiciona el puntero en SEEK_SET(inicio del archivo)
 	printf("Tamaño del archivo: %i bytes\n", size);
 
 	n = write(sockfd, &size, sizeof(size));
@@ -433,6 +442,5 @@ int startScanning(int sockfd)
 	}
 
 	fclose(picture);
-	sleep(1);
 	return 0;
 }

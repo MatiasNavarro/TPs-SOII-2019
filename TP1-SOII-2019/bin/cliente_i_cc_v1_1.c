@@ -9,6 +9,8 @@
 
 #include "../../includes/comunes.h"
 #include "../../includes/funciones_cliente.h"
+#include <time.h>
+#include <utime.h>
 
 static struct satelite sat;
 
@@ -53,7 +55,7 @@ int main(int argc, char *argv[])
 
 	//Iniciando satelite
 	printf("\nIniciando el satelite...\n");
-	printf("Hola Andy!!");
+	printf("\n¡¡NUEVA ACTUALIZACION!!\n");
 	//Obtengo la informacion del satelite
 	setInfo();
 	//Imprimo la informacion del satelite
@@ -289,7 +291,7 @@ void updateFirmware(int sockfd, char *argv[])
 	fflush(stdout);
 	sleep(1);
 	close(sockfd);
-	system("cd /home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP1-SOII-2019/src/inet && make");
+	system("cd /home/raspi/Facultad/Matias_Navarro/SOII_2019/TP1-SOII-2019/src/inet && make update");
 	execvp(argv[0],argv);
 }
 

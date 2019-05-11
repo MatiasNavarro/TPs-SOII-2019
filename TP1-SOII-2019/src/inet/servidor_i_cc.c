@@ -9,6 +9,7 @@
 #include "../../includes/colors.h"
 #include "../../includes/comunes.h"
 #include "../../includes/funciones_servidor.h"
+#include <time.h>
 
 /**
 * @brief Función principal del Servidor.
@@ -49,9 +50,11 @@ int main(int argc, char *argv[])
 				n = write(newsockfd, "Servidor Conectado", sizeof("Servidor Conectado"));
 				flag = 1;
 			}
-			else
+			else //Error de Autenticacion
 			{
 				printf("Error de autenticacion \n");
+				n = write(newsockfd, "Error de Autenticacion", sizeof("Error de Autenticacion"));
+				sleep(2);
 				exit(1);
 			}
 		}
@@ -137,7 +140,7 @@ void start_server(int *sockfd, socklen_t *clilen, struct sockaddr_in *serv_addr,
 	}
 
 	memset((char *)serv_addr, 0, sizeof(*serv_addr));
-	puerto = 6020;
+	puerto = 6020;										//Asignacion de puerto
 	serv_addr->sin_family = AF_INET;
 	serv_addr->sin_addr.s_addr = INADDR_ANY;
 	serv_addr->sin_port = htons(puerto);
@@ -250,7 +253,6 @@ int setComando(int newsockfd, char promp[])
 		{
 			printf("Actualizando Firmware\n");
 			write(newsockfd, buffer, sizeof(buffer));
-			sleep(1);
 			updateFirmware(newsockfd);
 			close(newsockfd);
 			exit(0);
@@ -260,7 +262,6 @@ int setComando(int newsockfd, char promp[])
 		{
 			printf("Obteniendo telemetria\n \n");
 			write(newsockfd, buffer, sizeof(buffer));
-			sleep(1);
 			v = telemetria(infoSat);
 			if (v == 0)
 			{
@@ -274,10 +275,21 @@ int setComando(int newsockfd, char promp[])
 		//Star Scanning
 		else if (strcmp(buffer, "start scanning") == 0)
 		{
+			//Calcular el tiempo transcurrido
+			clock_t t_ini, t_fin;
+  			double secs;
+			t_ini = clock(); //Comienza a contar el tiempo
+
 			printf("Comenzando el escaneo\n");
 			write(newsockfd,buffer,sizeof(buffer));
 			v = startScanning(newsockfd);
-			sleep(2);
+
+			t_fin = clock();//Termina de contar el tiempo
+			secs = (double)(t_fin - t_ini) / CLOCKS_PER_SEC;	//Calculo del tiempo transcurrido
+  			secs = secs * 10;
+			printf("Tiempo en ms: %.16g milisegundos\n", secs * 1000.0);		//Imprime el timpo en milisegundos
+			printf("Tiempo en seg: %.16g segundos\n", secs);					//Imprime el tiempo en segundos
+
 			if(v==0){
 				printf("Escaneo completo\n");
 			}
@@ -285,6 +297,8 @@ int setComando(int newsockfd, char promp[])
 			{
 				printf("Error durante el escaneo\n");
 			}
+
+
 		}
 		//Help
 		else if (strcmp(buffer, "help") == 0)
@@ -296,6 +310,7 @@ int setComando(int newsockfd, char promp[])
 		else if (strcmp(buffer, "exit") == 0)
 		{
 			printf("Apagando Sistema\n");
+			write(newsockfd,"fin", sizeof("fin"));
 			return -1;
 		}
 		//Comando invalido
@@ -356,14 +371,17 @@ void updateFirmware(int newsockfd)
 		return;
 	}
 
+	//#############################################################
+	//FIRMWARE(.bin)
+	
 	//Abre el binario
 	firmware = fopen("../../bin/firmwareUpdate.bin", "r");
 
-	fseek(firmware, 0, SEEK_END);
-	size = ftell(firmware);
-	fseek(firmware, 0, SEEK_SET);
+	fseek(firmware, 0, SEEK_END); 	//Posiciona el puntero en SEEK_END(final del arcivo)
+	size = ftell(firmware); 		//Obtengo el tamaño del archivo 
+	fseek(firmware, 0, SEEK_SET); 	//Posiciona el puntero en SEEK_SET(inicio del archivo)
 
-	n = write(newsockfd, &size, sizeof(size));
+	n = write(newsockfd, &size, sizeof(size)); //Envio el tamano del archivo
 	if (n < 0)
 	{
 		printf("Error en el update write\n");
@@ -393,8 +411,8 @@ void updateFirmware(int newsockfd)
 	}
 	fclose(firmware);
 
-
-
+	//#############################################################
+	//CODIGO (.c)
 	n = read(newsockfd, buffer, sizeof(buffer));
 	if (n < 0)
 	{
@@ -446,7 +464,6 @@ void updateFirmware(int newsockfd)
 	fclose(codigo);
 
 	printf("Actualizacion exitosa\n");
-	sleep(1);
 }
 
 /**
@@ -529,7 +546,7 @@ int startScanning(int newsockfd)
 		return -1;
 	}
 	printf("Sincronizacion Correcta\n");
-
+	
 	packet_size = read(newsockfd, &size, sizeof(size));
 	if (packet_size < 0)
 	{

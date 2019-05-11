@@ -1,8 +1,0 @@
-ConvertUTF.o: ConvertUTF.c /usr/include/stdc-predef.h ../config.h \
- ConvertUTF.h
-
-/usr/include/stdc-predef.h:
-
-../config.h:
-
-ConvertUTF.h:
