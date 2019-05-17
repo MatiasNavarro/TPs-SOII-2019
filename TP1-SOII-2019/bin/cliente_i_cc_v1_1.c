@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	struct hostent *server;
 
 	char buffer[TAM];
-	if (argc < 3)
+	if (argc < 2)
 	{
 		fprintf(stderr, "Uso %s host puerto\n", argv[0]);
 		exit(0);

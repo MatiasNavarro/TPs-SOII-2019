@@ -297,7 +297,9 @@ void updateFirmware(int sockfd, char *argv[])
 	printf("Reiniciando ...\n");
 	fflush(stdout);
 	close(sockfd);
-	system("cd /home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP1-SOII-2019/src/inet && make update");
+	//system("cd /home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP1-SOII-2019/src/inet && make update");
+	system("pwd");
+	system("make update");
 	execvp(argv[0],argv);
 }
 
