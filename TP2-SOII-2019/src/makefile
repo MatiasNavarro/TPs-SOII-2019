@@ -5,4 +5,4 @@ openmp :
 	gcc  -o openMP OpenMp.c -fopenmp `nc-config --cflags --libs`
 
 clean : 
-	rm readNet openMP
+	rm readNet openMP OR_ABI_Convolution.nc

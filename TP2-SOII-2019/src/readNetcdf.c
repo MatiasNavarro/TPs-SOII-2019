@@ -12,19 +12,14 @@
 int
 main()
 {
-    int ncid, varid, x, y, retval;
+    int ncid, varid, retval;
     float *data_in=malloc(NX*NY*sizeof(float));
     float *result=malloc(NX*NY*sizeof(float));
-    size_t start[2], cont[2];
-    /* Definicion de la matriz w */
-    float W[WX][WY] = {{-1, -1, -1},
-                       {-1,  8, -1},
-                       {-1, -1, -1}};
 
-    start[0]=0;
-    start[1]=0;
-    cont[0]=NX;
-    cont[1]=NY;
+    /* Definicion de la matriz w */
+    float W[WX][WY] = {{-1.0, -1.0, -1.0},
+                       {-1.0,  8.0, -1.0},
+                       {-1.0, -1.0, -1.0}};
 
     if ((retval = nc_open(FILE_NAME, NC_NOWRITE, &ncid)))
         ERR(retval);
@@ -39,14 +34,26 @@ main()
     
     /* el desarrollo acá */
     //####-------------------------------------------------###
+    for(int i=10000;i<10000+50;i=i+1){
+        printf("%f", data_in[i]);
+    }
+
+    /* Sets de nan en la matriz */
     setNAN(data_in);
 
+    for(int i=10000;i<10000+50;i=i+1){
+        printf("%f", data_in[i]);
+    }
+
+    /*realizar la convolucion */
     convolve(data_in, W, result);
     free(data_in);
-    
-    save_nc(start[0],start[1], result);
+
+    /*guardar la imagen filtrada */
+    save_nc(result);
     free(result);
     //####-------------------------------------------------###
+    
     /* Se cierra el archivo y liberan los recursos*/
     if ((retval = nc_close(ncid)))
         ERR(retval);  
@@ -65,15 +72,10 @@ main()
  */
 void setNAN(float *data_in){
     
-    for(int i=0; i<NX; i=i+1)
+    for(int i=0; i<NX*NY; i=i+1)
+	if(data_in[i]==(-1))
     {
-        for(int j=0; j<NY; j=j+1)
-            {
-                if(data_in[i*NX + j]==-1)
-                {
-                    data_in[i*NX + j]=(float)(0.0/0.0);
-                }                       
-            }   
+        data_in[i]=NAN;
     }
 }
 
@@ -86,15 +88,31 @@ void setNAN(float *data_in){
  */
 void convolve(float *image, float W[WX][WY], float *result)
 {
+    struct timespec start, end;
+    
+    if( clock_gettime( CLOCK_MONOTONIC_RAW, &start) == -1 ) {
+      perror( "clock gettime" );
+      exit( EXIT_FAILURE );
+    }
+
     for(int x=1; x<NX-1; x=x+1)
     {
         for(int y=1; y<NY-1; y=y+1)
         {
-            result[(x*NX)+y] = (result[((x-1)*NX)+(y-1)] * W[0][0] + result[((x-1)*NX)+(y)] * W[0][1] + result[((x-1)*NX)+(y+1)] * W[0][2] +
-                                result[(x*NX)+(y-1)]     * W[1][0] + result[(x*NX)+y]       * W[1][1] + result[(x*NX)+(y+1)]     * W[1][2] +
-                                result[((x+1)*NX)+(y-1)] * W[2][0] + result[((x+1)*NX)+(y)] * W[2][1] + result[((x+1)*NX)+(y+1)] * W[2][2]  ) ;
+            result[(x*NX)+y] = (image[((x-1)*NX)+(y-1)] * W[0][0] + image[((x-1)*NX)+(y)] * W[0][1] + image[((x-1)*NX)+(y+1)] * W[0][2] +
+                                image[(x*NX)+(y-1)]     * W[1][0] + image[(x*NX)+y]       * W[1][1] + image[(x*NX)+(y+1)]     * W[1][2] +
+                                image[((x+1)*NX)+(y-1)] * W[2][0] + image[((x+1)*NX)+(y)] * W[2][1] + image[((x+1)*NX)+(y+1)] * W[2][2] ) 
+                                * (float)(0.00031746) ;
         }
     }
+
+    if( clock_gettime( CLOCK_MONOTONIC_RAW, &end) == -1 ) {
+      perror( "clock gettime" );
+      exit( EXIT_FAILURE );
+    }
+
+    u_int64_t tiempo = (end.tv_sec - start.tv_sec) * 1000000 + (end.tv_nsec - start.tv_nsec) / 1000;
+    printf("Tiempo en realizar la convolucion: %f \n", (double)(tiempo));
 }
 
 /**
@@ -104,36 +122,59 @@ void convolve(float *image, float W[WX][WY], float *result)
  * @date 16/05/2019.
  * @author Navarro, Matias Alejandro.
  */
-void save_nc(int r, int s,float *result){
+void save_nc(float *result){
     /**/
-
+    int ncid, varid, retval, status, filas, columnas, id;
+    int dims[2];
+    size_t start[2] = {0};
+    start[0] = 0;
+    start[1] = 0;
+    size_t conteo[2] = {0};
+    conteo[0] = NX;
+    conteo[1] = NX;
     //Path completo: /home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP2-SOII-2019/src/image.nc
 
-    status = nc_create(SAVE_NAME, NC_CLOBBER, &ncid2);
+    status = nc_create(SAVE_NAME, NC_CLOBBER, &ncid);
     if (status != NC_NOERR) 
         ERR(status);
 
     /*dimensiones de datos que voy a guardar en data.nc*/
-    status = nc_def_dim(ncid2, "filas", 21696, &filas);
+    status = nc_def_dim(ncid, "filas", NX, &filas);
     if (status != NC_NOERR) 
         ERR(status);
-    status = nc_def_dim(ncid2, "columas", 21696, &columnas);
+    status = nc_def_dim(ncid, "columas", NY, &columnas);
     if (status != NC_NOERR) 
         ERR(status);
 
     /*asignar esas dimensiones y id*/
     dims[0] = filas;
     dims[1] = columnas;
-    status = nc_def_var (ncid2, "CMI", NC_FLOAT, 2, dims, &id);
+    status = nc_def_var (ncid, "CMI", NC_FLOAT, 2, dims, &id);
     if (status != NC_NOERR) 
         ERR(status);
 
-    status = nc_enddef(ncid2);
+    status = nc_enddef(ncid);
     if (status != NC_NOERR) 
         ERR(status);
 
-    if ((status = nc_put_vara_float(ncid2,id,start,conteo,result)))
+    if ((status = nc_put_vara_float(ncid,id,start,conteo,result)))
         ERR(status);
-    if ((status = nc_close(ncid2)))
+    if ((status = nc_close(ncid)))
         ERR(status);
+
+    //####################################################################################
+
+    retval = nc_open(SAVE_NAME, NC_WRITE, &ncid);
+    if (retval != NC_NOERR) 
+        ERR(retval);
+
+    retval = nc_inq_varid(ncid, "CMI", &varid);
+    if (retval != NC_NOERR) 
+        ERR(retval);
+
+    if ((retval = nc_put_vara_float(ncid,varid,start,conteo,result)))
+        ERR(retval);
+
+    if ((retval = nc_close(ncid)))
+        ERR(retval);
 }
