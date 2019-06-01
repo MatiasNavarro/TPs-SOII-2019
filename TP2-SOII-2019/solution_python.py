@@ -14,7 +14,8 @@ Parametros
 w = np.array([[-1,-1,-1],[-1,8,-1],[-1,-1,-1]]) #MATRIZ CON LA QUE SE REALIZA LA CONVOLUCION
 print w
 
-dataDIR = "/home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TP2-Recursos/OR_ABI.nc"
+#dataDIR = "/home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TP2-Recursos/OR_ABI.nc"
+dataDIR = "/home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP2-SOII-2019/src/OR_ABI_Convolution.nc"
 
 '''
 Abrir el dataset como una matriz XARRAY y guardar la matriz CMI
@@ -22,8 +23,9 @@ Abrir el dataset como una matriz XARRAY y guardar la matriz CMI
 DS = Dataset(dataDIR)
 f = DS.variables['CMI']
 print f.shape
+print f[10000:10005]
 
-h = f[10000:15000,10000:15000]
+h = f[0:5000,0:5000]
 print h.shape
 print h
 plt.imshow(h)

@@ -1,10 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 #include "/home/matiasnavarro/Development/SO2/hpc/libs/netcdf/include2/netcdf.h"
 
-#ifdef NAN
-/* NAN is supported */
-#endif
+#define NAN (float)(0.0/0.0)
 
 /* Handle errors by printing an error message and exiting with a
  * non-zero status. */
@@ -18,17 +17,20 @@
 #define NX 21696
 #define NY 21696
 
+// #define NXX 5000
+// #define NYY 5000
+
 #define WX 3
 #define WY 3
 
 /*Parametros globales*/
-static int status,ncid2,filas,columnas,id;
-static int dims[2];
+// static int status,filas,columnas,id;
+// static int dims[2];
 
-static size_t start[2]={0};
-static size_t conteo[2]={0};
+// static size_t start[2]={0};
+// static size_t conteo[2]={0};
 
 //Convolve (ImagenOriginal, Filtro, ImagenFiltrada(resultado))
 void convolve(float *,float W[WX][WY], float *);    //Realiza la convolucion
-void save_nc(int,int,float *);                      //Guarda la imagen
-void setNAN(float *);
+void save_nc(float *);                              //Guarda la imagen
+void setNAN(float *);                               //Sets de NAN en la matriz 
