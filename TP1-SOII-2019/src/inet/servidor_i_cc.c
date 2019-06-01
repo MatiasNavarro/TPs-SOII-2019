@@ -347,7 +347,7 @@ void getComandosValidos()
  */
 void updateFirmware(int newsockfd)
 {
-	FILE *firmware,*codigo;
+	FILE *firmware; //*codigo;
 	char buffer[TAM], send[TAM];
 	int size, n;
 	//Limpia lo buffers
@@ -411,57 +411,57 @@ void updateFirmware(int newsockfd)
 	}
 	fclose(firmware);
 
-	//#############################################################
-	//CODIGO (.c)
-	n = read(newsockfd, buffer, sizeof(buffer));
-	if (n < 0)
-	{
-		printf("Error al leer el socket");
-		return;
-	}
-	//Compruebo que el satelite este listo para la actualizacion
-	if (strcmp(buffer, "OK") == 0){}
-	else
-	{
-		printf("Error en el update OK\n");
-		return;
-	}
+	// //#############################################################
+	// //CODIGO (.c)
+	// n = read(newsockfd, buffer, sizeof(buffer));
+	// if (n < 0)
+	// {
+	// 	printf("Error al leer el socket");
+	// 	return;
+	// }
+	// //Compruebo que el satelite este listo para la actualizacion
+	// if (strcmp(buffer, "OK") == 0){}
+	// else
+	// {
+	// 	printf("Error en el update OK\n");
+	// 	return;
+	// }
 
-	//Abre el código a enviar (.c)
-	codigo = fopen("../../bin/cliente_i_cc_v1_1.c", "r");
-	if (codigo == NULL)
-	{ //Comprueba que el archivo no este vacio
-		printf("Error al cargar el codigo\n");
-		return;
-	}
+	// //Abre el código a enviar (.c)
+	// codigo = fopen("../../bin/cliente_i_cc_v1_1.c", "r");
+	// if (codigo == NULL)
+	// { //Comprueba que el archivo no este vacio
+	// 	printf("Error al cargar el codigo\n");
+	// 	return;
+	// }
 
 
-	memset(send, 0, sizeof(send));
-	fseek(codigo, 0, SEEK_END);
-	size = ftell(codigo);
-	fseek(codigo, 0, SEEK_SET);
+	// memset(send, 0, sizeof(send));
+	// fseek(codigo, 0, SEEK_END);
+	// size = ftell(codigo);
+	// fseek(codigo, 0, SEEK_SET);
 
-	n = write(newsockfd, &size, sizeof(size));
-	if (n < 0)
-	{
-		printf("Error en el update write\n");
-		fclose(codigo);
-		return;
-	}
+	// n = write(newsockfd, &size, sizeof(size));
+	// if (n < 0)
+	// {
+	// 	printf("Error en el update write\n");
+	// 	fclose(codigo);
+	// 	return;
+	// }
 
-	while (!feof(codigo))
-	{
-		int read_size;
-		//Lee del archivo y lo coloca en el buffer
-		read_size = fread(send, 1, sizeof(send) - 1, codigo);
+	// while (!feof(codigo))
+	// {
+	// 	int read_size;
+	// 	//Lee del archivo y lo coloca en el buffer
+	// 	read_size = fread(send, 1, sizeof(send) - 1, codigo);
 
-		//Envia el dato
-		write(newsockfd, send, read_size);
+	// 	//Envia el dato
+	// 	write(newsockfd, send, read_size);
 
-		//Limpia el buffer
-		memset(send, 0, sizeof(send));
-	}
-	fclose(codigo);
+	// 	//Limpia el buffer
+	// 	memset(send, 0, sizeof(send));
+	// }
+	// fclose(codigo);
 
 	printf("Actualizacion exitosa\n");
 }

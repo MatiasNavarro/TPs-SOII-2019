@@ -9,9 +9,11 @@ cliente : cliente_i_cc.c
 cppcheck:
 	cppcheck --enable=all .
 
-update:
-	gcc -g -Wall -Werror -pedantic -o cliente_i cliente_i_cc_v1_1.c 
+#update:
+#	gcc -g -Wall -Werror -pedantic -o cliente_i cliente_i_cc_v1_1.c 
 
 clean : 
-	rm servidor_i cliente_i earth.jpg cliente_i_cc_v1_1.c\
+	rm servidor_i cliente_i earth.jpg 
+
+#cliente_i_cc_v1_1.c\
 
