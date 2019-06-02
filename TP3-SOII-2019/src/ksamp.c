@@ -136,6 +136,13 @@ void printPage(struct Datos datos, struct Interval data){
     "            <p class=\"text-muted mb-0\">%ldD %ld:%02ld:%02ld</p>"
     "        </div>"
     "        </div>"
+    "        <div class=\"col-lg-3 col-md-6 text-center\">"
+    "        <div class=\"mt-5\">"
+    "            <i class=\"fas fa-4x fa-cogs text-primary mb-4\"></i>"
+    "            <h3 class=\"h4 mb-2\">Linux Kernel</h3>"
+    "            <p class=\"text-muted mb-0\">%s</p>"
+    "        </div>"
+    "        </div>"
     "    </div>"
     "    </div>"
     "</section>",
