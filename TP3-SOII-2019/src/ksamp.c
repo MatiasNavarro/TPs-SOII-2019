@@ -41,81 +41,104 @@ void printPage(struct Datos datos, struct Interval data){
     long ut = datos.uptime;
     //Imports
     printf(""
-    "<html>"
-    "<title>System Information</title>"
-    "<meta charset=\"UTF-8\">"
-    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"
-    "<link rel=\"stylesheet\" href=\"../style/w3.css\">"
-    "<link rel=\"stylesheet\" href=\"../style/lato.css\">"
-    "<link rel=\"stylesheet\" href=\"../style/montserrat.css\">"
-    "<link rel=\"stylesheet\" href=\"../style/font_awesome.css\">"
-    "<style>"
-    "body,h1,h2,h3,h4,h5,h6 {font-family: \"Lato\", sans-serif}"
-    ".w3-bar,h1,button {font-family: \"Montserrat\", sans-serif}"
-    ".fa-anchor,.fa-coffee {font-size:200px}"
-    "</style>"
-    "<body>");
+    "<!DOCTYPE html>"
+    "<html lang=\"en\">"
+    "<head>"
+    "<meta charset=\"utf-8\">"
+    "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">"
+    "<meta name=\"description\" content=\"TP3 - SOII - 2019\">"
+    "<meta name=\"author\" content=\"Matias Navarro\">"
+    "<title>TP3-SOII-2019 - Matias Navarro</title>");
 
-    //<!-- Navbar -->
+    //<!-- Font Awesome Icons -->
     printf(""
-    "<div>"
-    "  <div class=\"w3-bar w3-red w3-card-2 w3-left-align w3-large\">"
-    "    <a href=\"../index.html\" class=\"w3-bar-item w3-button w3-padding-large w3-white\">Home</a>"
-    "    <a href=\"ksamp.cgi\" class=\"w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white\">System Info</a>"
-    "    <a href=\"../stations.html\" class=\"w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white\">Stations</a>"
-    "    <a href=\"modules.cgi\" class=\"w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white\">Drivers and Modules</a>"
-    "    <a href=\"../doc/html/index.html\" class=\"w3-bar-item w3-button w3-hide-small w3-padding-large w3-hover-white\">Documentation</a>"
-    "  </div>"
-    "</div>");
+    "<link href=\"../vendor/fontawesome-free/css/all.min.css\" rel=\"stylesheet\" type=\"text/css\">");
 
-    // <!-- Header -->
+    //<!-- Google Fonts -->
     printf(""
-    "<header class=\"w3-container w3-red w3-left-align\" style=\"padding:0px 16px\">"
-    "    <h1 class=\"w3-padding-8 w3-xxlarge\">System Info</h1>"
-    "</header>");
+    "<link href=\"https://fonts.googleapis.com/css?family=Merriweather+Sans:400,700\" rel=\"stylesheet\">"
+    "<link href=\'https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic\' rel='stylesheet' type='text/css'>");
 
-    //Lista
+    //<!-- Plugin CSS -->
     printf(""
-    "<ul class=\"w3-ul w3-card-4\">"
-    "  <li class=\"w3-padding-16\">"
-    "    <img src=\"../icons/host.png\" class=\"w3-left w3-circle w3-margin-right\" style=\"width:50px\">"
-    "    <span class=\"w3-large\">Hostname</span><br>"
-    "    <span>%s</span>"
-    "  </li>"
-    "  <li class=\"w3-padding-16\">"
-    "    <img src=\"../icons/cpu.png\" class=\"w3-left w3-circle w3-margin-right\" style=\"width:50px\">"
-    "    <span class=\"w3-large\">CPU Model</span><br>"
-    "    <span>%s</span>"
-    "  </li>"
-    "  <li class=\"w3-padding-16\">"
-    "    <img src=\"../icons/cpu2.png\" class=\"w3-left w3-circle w3-margin-right\" style=\"width:50px\">"
-    "    <span class=\"w3-large\">CPU Usage</span><br>"
-    "    <span>%s %s %s</span>"
-    "  </li>"
-    "  <li class=\"w3-padding-16\">"
-    "    <img src=\"../icons/ram.png\" class=\"w3-left w3-circle w3-margin-right\" style=\"width:50px\">"
-    "    <span class=\"w3-large\">Memoria RAM</span><br>"
-    "    <span>%i MB/%i MB</span>"
-    "  </li>"
-    "  <li class=\"w3-padding-16\">"
-    "    <img src=\"../icons/clock.png\" class=\"w3-left w3-circle w3-margin-right\" style=\"width:50px\">"
-    "    <span class=\"w3-large\">Hora y Fecha</span><br>"
-    "    <span>%d:%d:%d %d-%d-%d</span>"
-    "  </li>"
-    "  <li class=\"w3-padding-16\">"
-    "    <img src=\"../icons/uptime.png\" class=\"w3-left w3-circle w3-margin-right\" style=\"width:50px\">"
-    "    <span class=\"w3-large\">Uptime</span><br>"
-    "    <span>%ldD %ld:%02ld:%02ld</span>"
-    "  </li>"
-    "  <li class=\"w3-padding-16\">"
-    "    <img src=\"../icons/kernel.png\" class=\"w3-left w3-circle w3-margin-right\" style=\"width:50px\">"
-    "    <span class=\"w3-large\">Linux Kernel Version</span><br>"
-    "    <span>%s</span>"
-    "  </li>"
-    "</ul>"
+    "<link href=\"../vendor/magnific-popup/magnific-popup.css\" rel=\"stylesheet\">");
 
-    "</body>"
-    "</html>",
+    //<!-- Theme CSS - Includes Bootstrap -->
+    printf(""
+    "<link href=\"../css/creative.min.css\" rel=\"stylesheet\">"
+    "</head>"
+    "<body id=\"page-top\">");
+
+    //<!-- Navigation -->
+    printf(""
+    "<nav class=\"navbar navbar-expand-lg navbar-light fixed-top py-3\" id=\"mainNav\">"
+    "    <div class=\"container\">"
+    "    <a class=\"navbar-brand js-scroll-trigger\" href=\"#page-top\">Sistemas Operativos II - 2019 (UNC)</a>"
+    "    <button class=\"navbar-toggler navbar-toggler-right\" type=\"button\" data-toggle=\"collapse\" data-target=\"#navbarResponsive\" aria-controls=\"navbarResponsive\" aria-expanded=\"false\" aria-label=\"Toggle navigation\">"
+    "        <span class=\"navbar-toggler-icon\"></span>"
+    "    </button>"
+    "    <div class=\"collapse navbar-collapse\" id=\"navbarResponsive\">"
+    "        <ul class=\"navbar-nav ml-auto my-2 my-lg-0\">"
+    "        <li class=\"nav-item\">"
+    "            <a class=\"nav-link js-scroll-trigger\" href=\"../index.lighttpd.html\">Home</a>"
+    "        </li>"
+    "        </ul>"
+    "    </div>"
+    "    </div>"
+    "</nav>");
+
+    //<!-- Services Section -->
+    printf(""
+    "<section class=\"page-section\" id=\"services\">"
+    "    <div class=\"container\">"
+    "    <h2 class=\"text-center mt-0\">System Info</h2>"
+    "    <hr class=\"divider my-4\">"
+    "    <div class=\"row\">"
+    "        <div class=\"col-lg-3 col-md-6 text-center\">"
+    "        <div class=\"mt-5\">"
+    "            <i class=\"fas fa-4x fa-address-card text-primary mb-4\"></i>"
+    "            <h3 class=\"h4 mb-2\">Hostname</h3>"
+    "            <p class=\"text-muted mb-0\">Our themes are updated regularly to keep them bug free!</p>"
+    "        </div>"
+    "        </div>"
+    "        <div class=\"col-lg-3 col-md-6 text-center\">"
+    "        <div class=\"mt-5\">"
+    "            <i class=\"fas fa-4x fa-microchip text-primary mb-4\"></i>"
+    "            <h3 class=\"h4 mb-2\">CPU Model</h3>"
+    "            <p class=\"text-muted mb-0\">All dependencies are kept current to keep things fresh.</p>"
+    "        </div>"
+    "        </div>"
+    "        <div class=\"col-lg-3 col-md-6 text-center\">"
+    "        <div class=\"mt-5\">"
+    "            <i class=\"fas fa-4x fa-tachometer-alt text-primary mb-4\"></i>"
+    "            <h3 class=\"h4 mb-2\">CPU Usage</h3>"
+    "            <p class=\"text-muted mb-0\">You can use this design as is, or you can make changes!</p>"
+    "        </div>"
+    "        </div>"
+    "        <div class=\"col-lg-3 col-md-6 text-center\">"
+    "        <div class=\"mt-5\">"
+    "            <i class=\"fas fa-4x fa-memory text-primary mb-4\"></i>"
+    "            <h3 class=\"h4 mb-2\">Memoria RAM</h3>"
+    "            <p class=\"text-muted mb-0\">Is it really open source if it's not made with love?</p>"
+    "        </div>"
+    "        </div>"
+    "        <div class=\"col-lg-3 col-md-6 text-center\">"
+    "        <div class=\"mt-5\">"
+    "            <i class=\"fas fa-4x fa-calendar-alt text-primary mb-4\"></i>"
+    "            <h3 class=\"h4 mb-2\">Hora y Fecha</h3>"
+    "            <p class=\"text-muted mb-0\">Is it really open source if it's not made with love?</p>"
+    "        </div>"
+    "        </div>"
+    "        <div class=\"col-lg-3 col-md-6 text-center\">"
+    "        <div class=\"mt-5\">"
+    "            <i class=\"fas fa-4x fa-clock text-primary mb-4\"></i>"
+    "            <h3 class=\"h4 mb-2\">Uptime</h3>"
+    "            <p class=\"text-muted mb-0\">Is it really open source if it's not made with love?</p>"
+    "        </div>"
+    "        </div>"
+    "    </div>"
+    "    </div>"
+    "</section>",
     datos.hostname,
     datos.cpu, data.load1Min, data.load5Min, data.load15Min,
     data.memTot/MBYTE - data.memDisp/MBYTE,data.memTot/MBYTE,
@@ -123,6 +146,29 @@ void printPage(struct Datos datos, struct Interval data){
     ut/day, (ut%day)/hour,(ut%hour)/minute,ut%minute,
     datos.kernel
     );
+
+    //<!-- Footer -->
+    printf(""
+    "<footer class=\"bg-light py-5\">"
+    "    <div class=\"container\">"
+    "    <div class=\"small text-center text-muted\">Copyright &copy; 2019 - (UNC) Facultad de Ciencias Exactas Físicas y Naturales</div>"
+    "    </div>"
+    "</footer>"
+
+    //<!-- Bootstrap core JavaScript -->
+    "<script src=\"../vendor/jquery/jquery.min.js\"></script>"
+    "<script src=\"../vendor/bootstrap/js/bootstrap.bundle.min.js\"></script>"
+
+    //<!-- Plugin JavaScript -->
+    "<script src=\"../vendor/jquery-easing/jquery.easing.min.js\"></script>"
+    "<script src=\"../vendor/magnific-popup/jquery.magnific-popup.min.js\"></script>"
+
+    //<!-- Custom scripts for this template -->
+    "<script src=\"../js/creative.min.js\"></script>"
+
+    "</body>"
+
+    "</html>");
 }
 
 /**
