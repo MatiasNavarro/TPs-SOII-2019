@@ -5,7 +5,7 @@
  * dedicada a mostrar módulos del kernel instalados, subir un módulo propio,
  * instalarlo y desinstalarlo.
  *
- *  @author Facundo Maero
+ *  @author Matias Navarro
  */
 #include "../include/ksamp.h"
 
