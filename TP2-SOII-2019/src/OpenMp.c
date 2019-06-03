@@ -10,6 +10,10 @@
 #include <omp.h>
 #define NT 2 
 
+
+//Usuario: Estudiante52 
+//Password: XCBxZcF1
+
 int
 main()
 {
