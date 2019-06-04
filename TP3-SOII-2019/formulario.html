@@ -30,14 +30,14 @@
   <!-- Navigation -->
   <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
     <div class="container">
-      <a class="navbar-brand js-scroll-trigger" href="#page-top">Sistemas Operativos II - 2019 (UNC)</a>
+      <a class="navbar-brand js-scroll-trigger text-black-50" href="#page-top">Sistemas Operativos II - 2019 (UNC)</a>
       <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarResponsive">
         <ul class="navbar-nav ml-auto my-2 my-lg-0">
           <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="./index.lighttpd.html">Home</a>
+            <a class="nav-link js-scroll-trigger text-black-50" href="./index.lighttpd.html">Home</a>
           </li>
         </ul>
       </div>
@@ -52,15 +52,21 @@
 
       <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
-          <p class="text-muted mb-0">Página con un formulario que permita definir una fecha (año y dı́a
-            DOI), y que al enviarlo, devuelva la lista del archivos disponibles de
-            Goes 16 en AWS (producto ABI-L2-CMIPF, canal 13) y los muestre
-            en la página [1].
-          </p><br>
-          <p>
-           Año: <INPUT type="text" name="anio">  Día: <INPUT type="text" name="dia"><BR>
-          </p><br>
-          <a class="btn btn-primary btn-xl js-scroll-trigger" href="#services">Consultar</a>
+            <p class="text-muted mb-0">Página con un formulario que permita definir una fecha (año y dı́a
+                DOI), y que al enviarlo, devuelva la lista del archivos disponibles de
+                Goes 16 en AWS (producto ABI-L2-CMIPF, canal 13) y los muestre
+                en la página [1].
+            </p><br>
+            <form target="mod-iframe" method="get" enctype="multipart/form-data" action="./src/formulario.cgi">
+	            <p>
+                Año: <input type="number" name="anio" placeholder="Ingrese el año">
+                <br><br>
+                Día: <input type="number" name="dia" placeholder="Ingrese el dia"><br>
+                </p><br>
+                <div>
+                    <button class="btn btn-primary btn-xl js-scroll-trigger" type="submit">Consultar</button>
+                </div>
+            </from>
         </div>
       </div>
     </div>
