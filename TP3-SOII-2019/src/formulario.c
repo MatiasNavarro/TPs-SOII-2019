@@ -26,7 +26,7 @@ char *day=strtok(NULL," ");
 day=strtok(day,"=");
 day=strtok(NULL," ");
 printf(" y dia %s es:\n",day);
-sleep(2);
+
 
 char path[100]={0};
 strcpy(path,"aws s3 --no-sign-request ls --recursive noaa-goes16/ABI-L2-CMIPF/");

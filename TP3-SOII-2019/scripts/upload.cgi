@@ -15,7 +15,7 @@ unless ($CGI::VERSION >= 2.47) {
    error('Your version of CGI.pm is too old. You must have verison 2.47 or higher to use this script.')
 }
  
-my $upload_dir = '/var/www/html/upload';
+my $upload_dir = '/var/www/html/uploads';
  
 # a list of valid characters that can be in filenames
 my $filename_characters = 'a-zA-Z0-9_.-';
@@ -57,7 +57,7 @@ while ( <$upload_filehandle> ) {
 }
 close UPLOADFILE;
  
-my $output_cmd = system("sudo insmod /var/www/html/upload/$filename");
+my $output_cmd = system("sudo insmod /var/www/html/uploads/$filename");
 
 if ($output_cmd ne 0) {
    error('ERROR! No se pudo instalar el modulo seleccionado.');
