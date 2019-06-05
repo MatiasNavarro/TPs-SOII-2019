@@ -5,6 +5,6 @@ find /var/www/html/uploads/ -type f | while read line; do
 	sudo insmod $line
 done
 
-echo Location: modules.cgi
+echo Location: modulos.cgi
 echo
 echo

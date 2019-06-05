@@ -1,4 +1,16 @@
-all: helloWorld
+MODSRC=/var/www/html/ksrc
+obj-m+=helloWorld.o
 
-helloWorld:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+all: module
+
+module:
+	make -C /lib/modules/$(shell uname -r)/build M=${MODSRC} modules
+
+clean:
+	make -C /lib/modules/$(shell uname -r)/build M=${MODSRC} clean
+
+up:
+	sudo insmod helloWorld.ko
+
+down:
+	sudo rmmod helloWorld.ko
