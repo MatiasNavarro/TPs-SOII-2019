@@ -5,7 +5,7 @@
  * dedicada a mostrar módulos del kernel instalados, subir un módulo propio,
  * instalarlo y desinstalarlo.
  *
- *  @author Facundo Maero
+ *  @author Matias Navarro
  */
 #include "../include/modules.h"
 
@@ -111,30 +111,19 @@ void printPage(struct Modulo modulos[], int cant){
     "            un formulario que permita subir un archivo al servidor, controlar que este sea un archivo "
     "            válido (del tipo módulo), e instalarlo en el kernel del sistema operativo. También debe poseer"
     "           un botón para removerlo [2,3]."
-    "        </p><br>"
-    "        <div class=\'w3-half w3-container\'>"
-    "        <form action=\"/cgi-bin/upload.cgi\" method=\"post\" enctype=\"multipart/form-data\"> "
-    "        <p>Archivo a subir: <input class=\"btn js-scroll-trigger\" type=\"file\" name=\"modulo\" /></p>"
-    "        <p><input class=\"btn btn-primary btn-xl js-scroll-trigger\" type=\"submit\" name=\"Submit\" value=\"Subir Módulo\" /></p>"
-    "        </form>"
-    "        <p><a class=\"w3-button w3-border w3-large\" href=\"remove.sh\">Eliminar modulo</a></p>"
-    "        </div>"
-    "    </div>"
-    "    </div>"
-    "</div>"
-      );
+    "        </p><br>");
 
     printf(
-        "<div class=\"w3-half w3-container w3-padding row justify-content-center\">"
-        "<table class=\"w3-table w3-striped w3-bordered\">"
-        "<tr>"
-        "<th>Nro</th>"
-        "<th>Nombre</th>"
-        "<th>Tamaño</th>"
-        "<th>Nro Instancias</th>"
-        "<th>Estado</th>"
-        "</tr>"
-        );
+    "<div class=\"w3-half w3-container w3-padding row justify-content-center\">"
+    "<table class=\"w3-table w3-striped w3-bordered\">"
+    "<tr>"
+    "<th>Nro</th>"
+    "<th>Nombre</th>"
+    "<th>Tamaño</th>"
+    "<th>Nro Instancias</th>"
+    "<th>Estado</th>"
+    "</tr>"
+    );
 
     for (int i = 0; i < cant; ++i)
     {
@@ -154,7 +143,21 @@ void printPage(struct Modulo modulos[], int cant){
     printf(
         "</table>"
         "</div>"
-        "</section>");
+	"<br><br>");
+
+
+    printf(""
+    "        <div class=\'w3-half w3-container\'>"
+    "        <form action=\"/cgi-bin/upload.cgi\" method=\"post\" enctype=\"multipart/form-data\"> "
+    "        <p>Archivo a subir: <input class=\"btn js-scroll-trigger\" type=\"file\" name=\"modulo\" /></p>"
+    "        <p><input class=\"btn btn-primary btn-xl js-scroll-trigger\" type=\"submit\" name=\"Submit\" value=\"Subir Módulo\" /></p>"
+    "        </form>"
+    "        <p><a class=\"w3-button w3-border w3-large\" href=\"remove.sh\">Eliminar modulo</a></p>"
+    "        </div>"
+    "    </div>"
+    "    </div>"
+    "</div>"
+    "</section>");
         
     //<!-- Footer -->
     printf(""
