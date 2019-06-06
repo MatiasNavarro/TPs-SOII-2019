@@ -1,1 +1,0 @@
-cmd_/var/www/html/ksrc/helloWorld.ko := ld -EL -r  -T ./scripts/module-common.lds --build-id  -o /var/www/html/ksrc/helloWorld.ko /var/www/html/ksrc/helloWorld.o /var/www/html/ksrc/helloWorld.mod.o ;  true
