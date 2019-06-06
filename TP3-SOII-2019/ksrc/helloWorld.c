@@ -7,16 +7,16 @@ MODULE_AUTHOR("Matias Navarro");    ///< The author -- visible when you use modi
 MODULE_DESCRIPTION("Mi primer Driver");  ///< The description -- see modinfo
 MODULE_VERSION("0.1");            ///< A version number to inform users
 
-static int __init hello_2_init(void)
+static int __init hello_init(void)
 {
 	printk(KERN_INFO "Hola Mundo!\n");
 	return 0;
 }
 
-static void __exit hello_2_exit(void)
+static void __exit hello_exit(void)
 {
 	printk(KERN_INFO "Adios Mundo Cruel\n");
 }
 
-module_init(hello_2_init);
-module_exit(hello_2_exit);
+module_init(hello_init);
+module_exit(hello_exit);
