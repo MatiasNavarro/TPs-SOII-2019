@@ -163,13 +163,10 @@ void printPage(struct Datos datos, struct Interval data){
     datos.kernel
     );
 
-    //<!-- Footer -->
     printf(""
-    "<footer class=\"bg-light py-5\">"
     "    <div class=\"container\">"
     "    <div class=\"small text-center text-muted\">Copyright &copy; 2019 - (UNC) Facultad de Ciencias Exactas Físicas y Naturales</div>"
-    "    </div>"
-    "</footer>"
+    "    <br></div>"
 
     //<!-- Bootstrap core JavaScript -->
     "<script src=\"../vendor/jquery/jquery.min.js\"></script>"

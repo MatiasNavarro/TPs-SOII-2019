@@ -9,13 +9,13 @@ MODULE_VERSION("0.1");            ///< A version number to inform users
 
 static int __init hello_init(void)
 {
-	printk(KERN_INFO "Hola Mundo!\n");
+	printk(KERN_INFO "¡Hello World!\n");
 	return 0;
 }
 
 static void __exit hello_exit(void)
 {
-	printk(KERN_INFO "Adios Mundo Cruel\n");
+	printk(KERN_INFO "¡Good Bye World!\n");
 }
 
 module_init(hello_init);

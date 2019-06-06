@@ -106,10 +106,8 @@ void printPage(struct Modulo modulos[], int cant){
     "    <hr class=\"divider my-4\">"
     "    <div class=\"row justify-content-center\">"
     "    <div class=\"col-lg-8 text-center\">"
-    "        <p class=\"text-muted mb-0\">Página que liste los módulos instalados en el sistema, y que posea"
-    "            un formulario que permita subir un archivo al servidor, controlar que este sea un archivo "
-    "            válido (del tipo módulo), e instalarlo en el kernel del sistema operativo. También debe poseer"
-    "           un botón para removerlo [2,3]."
+    "        <p class=\"text-muted mb-0\">Página que lista los módulos instalados en el Kernel. También permite"
+    "            cargar un módulo ya compilado o removerlo"
     "        </p><br>");
 
     printf(
@@ -147,16 +145,20 @@ void printPage(struct Modulo modulos[], int cant){
 
     printf(""
     "    <div class=\"w3-half w3-container\">"
+    "        <div class=\"alert alert-warning\">"
+    "        <strong>Warning!</strong> Está a punto de instalar un driver en el kernel"
+    "        </div>"
     "        <form target=\"mod-iframe\" action=\"../scripts/upload.cgi\" method=\"post\" enctype=\"multipart/form-data\"> "
     "        	<p>Archivo a subir: <input class=\"btn js-scroll-trigger\" type=\"file\" name=\"modulo\" /></p>"
-    "        	<div><br>"
-    "        		<p><input class=\"btn btn-primary btn-xl js-scroll-trigger\" type=\"submit\" name=\"Submit\" value=\"Subir Módulo\" /></p>"
-    "        	</div>"
-    "        </form>"
+    "        	<p><button class=\"btn btn-success\" type=\"submit\">Subir Modulo</button></p>"
+    "        </form><br><br>"
+    "        <div class=\"alert alert-danger\">"
+    "        <strong>Danger!</strong> Está a punto de remover un driver del kernel"
+    " 	     </div>"
     "        <form target=\"mod-iframe\" action=\"../scripts/remove.cgi\" enctype=\"multipart/form-data\"> "
-    "        	<input type=\"file\" class=\"btn btn-primary mx-auto\" name=\"remove\">"
-    "		<label for=\"subirmodulo\"> Eliga el modulo que desea remover</label>"
-    "        	<p><button class=\"w3-button w3-border w3-large\" type=\"submit\">Eliminar modulo</button></p>"
+    "           <label for=\"subirmodulo\"> Eliga el modulo que desea remover</label>"
+    "        	<input type=\"text\"  name=\"remove\" placeholder=\"Nombre del Modulo\">"
+    "           <p><button class=\"btn btn-danger\" type=\"submit\">Eliminar Modulo</button></p>"
     "        </form>"
     "        <iframe name=\"mod-iframe\" class=\"justify-content-center\"  allowtransparency=\"true\" src=\"../scripts/upload.cgi\" frameborder=\"0\" width=\"250\" height=\"70\">"
     "        </iframe>"
@@ -165,15 +167,11 @@ void printPage(struct Modulo modulos[], int cant){
     "    </div>"
     "</div>"
     "</section>");
-        
-    //<!-- Footer -->
+    
     printf(""
-    "<footer class=\"bg-light py-5\">"
     "    <div class=\"container\">"
     "    <div class=\"small text-center text-muted\">Copyright &copy; 2019 - (UNC) Facultad de Ciencias Exactas Físicas y Naturales</div>"
-    "    </div>"
-    "</footer>"
-
+    "    <br></div>"
     //<!-- Bootstrap core JavaScript -->
     "<script src=\"../vendor/jquery/jquery.min.js\"></script>"
     "<script src=\"../vendor/bootstrap/js/bootstrap.bundle.min.js\"></script>"
