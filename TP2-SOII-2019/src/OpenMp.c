@@ -8,7 +8,8 @@
  */
 #include "../includes/includes.h"
 #include <omp.h>
-#define NT 2 
+//Numero de hilos (Number Thread)
+#define NT 2
 
 
 //Usuario: Estudiante52 
@@ -39,16 +40,8 @@ main()
     
     /* el desarrollo acá */
     //####-------------------------------------------------###
-    for(int i=10000;i<10000+50;i=i+1){
-        printf("%f", data_in[i]);
-    }
-
     /* Sets de nan en la matriz */
     setNAN(data_in);
-
-    for(int i=10000;i<10000+50;i=i+1){
-        printf("%f", data_in[i]);
-    }
 
     /*realizar la convolucion */
     convolve(data_in, W, result);
@@ -69,9 +62,9 @@ main()
 }
 
 /**
- * @brief
- * @param
- * @return
+ * @brief Funcion que setea los valores -1 de la matriz como NAN (i.e (float)(0.0/0.0))
+ * @param data_in: imagen del satelite cargada
+ * @return void
  * @date 16/05/2019.
  * @author Navarro, Matias Alejandro.
  */
@@ -85,9 +78,11 @@ void setNAN(float *data_in){
 }
 
 /**
- * @brief
- * @param
- * @return
+ * @brief Funcion encargada de realizar la convolucion, el resultado de dicha convolucion es la imagen con el filtro de bordes aplicado
+ * @param - image: imagen del satelite cargada a la cual se le va a realizar la convolucion 
+ *        - W[WX][WY]: matriz "filtro" con la cual se realiza la convolucion 
+ *        - result: matriz donde se va a cargar la imagen resultante, es decir, la imagen con el filtro de bordes aplicado
+ * @return void
  * @date 16/05/2019.
  * @author Navarro, Matias Alejandro.
  */
@@ -122,9 +117,9 @@ void convolve(float *image, float W[WX][WY], float *result)
 }
 
 /**
- * @brief
- * @param
- * @return
+ * @brief Funcion encargada de crear el archivo .nc donde se guardara la imagen resultante y escritura de dicho archivo
+ * @param - result: imagen filtrada (Resultado de la convolucion)
+ * @return void
  * @date 16/05/2019.
  * @author Navarro, Matias Alejandro.
  */
@@ -138,8 +133,8 @@ void save_nc(float *result){
     size_t conteo[2] = {0};
     conteo[0] = NX;
     conteo[1] = NX;
-    //Path completo: /home/matiasnavarro/Facultad/2019/Sistemas_Operativos_II/Practicos/TPs-SOII-2019/TP2-SOII-2019/src/image.nc
 
+    //############## Creacuion del archivo .nc ############################################
     status = nc_create(SAVE_NAME, NC_CLOBBER, &ncid);
     if (status != NC_NOERR) 
         ERR(status);
@@ -170,6 +165,7 @@ void save_nc(float *result){
 
     //####################################################################################
 
+    //Escritura de la imagen resultante en el archivo creado anteriormente
     retval = nc_open(SAVE_NAME, NC_WRITE, &ncid);
     if (retval != NC_NOERR) 
         ERR(retval);
